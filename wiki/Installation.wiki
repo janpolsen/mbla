@@ -3,8 +3,8 @@
 
 = Installation and upgrading =
 
-  # Download the latest release (v0.20) here
-  # Save that file as mbla.php in your plugin-directory (remember to rename it from .phps to .php)
+  # Download the latest release [http://mbla.googlecode.com/files/mbla.php here]
+  # Save that file as mbla.php in your plugin-directory
   # Activate the plugin called MBLA in your admin section
   # Reconfigure the options to match your needs
   # Add the following line to wherever you want the avatars to show up:
