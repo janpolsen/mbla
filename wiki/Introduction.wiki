@@ -1,5 +1,0 @@
-#summary Introduction of the project
-#labels Phase-Requirements
-= Introduction =
-
-MBLA is an acronym for "MyBlogLog Avatars" and is a plugin for [http://wordpress.org Wordpress]. It can add avatars from MyBlogLog to posts and comments. From v0.15 the plugin also handels Gravatars. You can easly switch between Gravatars and MBL avatars. Fully style customizable with cache control - everything is handled through MBLA's own option page.
