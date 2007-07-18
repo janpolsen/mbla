@@ -1,5 +1,4 @@
 <?php
-
 /*
 Plugin Name: MBLA
 Plugin URI: http://kamajole.dk/plugins/mbla/
@@ -45,7 +44,23 @@ Added support for customizing which URL the avatar links to. There might come mo
 To-do:
 - 2007-03-12: Prioritize which avatar to use and then use a fall back method if it doesn't exist
 */
-$VERSION = '0.20';
+if (!function_exists('checkVersion')) {
+  function checkVersion() {
+    $latest  = "http://".strtr(basename($_GET['page'], '.php'), '_', '-').".googlecode.com/svn/trunk/{$_GET['page']}";
+    $tmpfile = str_replace(array('<br />','&nbsp;'),
+                           array(chr(10).chr(13),' '),
+                           curlGet($latest));
+    preg_match_all('/Version: (.*)/', $tmpfile, $matches);
+    $latest_version = $matches[1][0];
+    $_tmp = file(dirname(__FILE__).'/'.$_GET['page']);
+    list($dummy, $this_version) = explode(' ', $_tmp[5]);
+    if (trim($latest_version) != trim($this_version)) {
+      return "<div style='color: red;'>You are running version {$this_version} - there is a <a href='{$latest}'>newer version {$latest_version} available</a></div>";
+    } else {
+      return "<div style='color: green;'>You are running the latest version {$this_version}</div>";
+    }
+  }
+}
 
 add_action ('admin_menu', 'mbla_menu');
 $mbla_options = get_option('mbla_options');
@@ -180,19 +195,7 @@ function mbla_default_options($action              = '',
   echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
   echo "<tr>";
   echo   "<td colspan='3'>";
-  echo     "<div style='float: right;'>";
-  $latest  = 'http://kamajole.dk/files/?wordpress/plugins/mbla.php';
-  $tmpfile = str_replace(array('<br />','&nbsp;'), 
-                         array(chr(10).chr(13),' '),
-                         curlGet($latest));
-  preg_match_all('/Version: (.*)/', $tmpfile, $matches);
-  $latest_version = $matches[1][0];
-  if (trim($latest_version) != $VERSION) {
-    echo   "<div style='color: red;'>You are running version {$VERSION} - there is a <a href='{$latest}'>newer version available {$latest_version}</a></div>";
-  } else {
-    echo   "<div style='color: green;'>You are running the latest version {$VERSION}</div>";
-  }
-  echo        "</div>";
+  echo   "<div style='float: right;'>".checkVersion()."</div>";
   echo     "<h2>MBLA Options</h2>";
   echo   "</td>";
   echo "</tr>";
