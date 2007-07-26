@@ -1,4 +1,4 @@
-#summary History
+#summary History of this plugin
 #labels Featured
 
 = History =
