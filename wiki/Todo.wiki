@@ -1,0 +1,7 @@
+#summary A list of "To-do"s which will be implemented at some time
+
+= To-do =
+
+  * Prioritize which avatar to use and then use a fall back method if it doesn't exist
+
+
