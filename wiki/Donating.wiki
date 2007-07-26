@@ -3,7 +3,7 @@
 
 All plugins I have made and might make in the future are and will continue to be completely free. The plugins were primarily ment for personal use, but I thought that if I needed a plugin to do a specific task, then there might be others who need it as well.
 
-You are always welcome to add a comment with a request and if I like it, then I will add it to my [./ToDo To-do] list.
+You are always welcome to add a comment with a request and if I like it, then I will add it to my [http://code.google.com/p/mbla/wiki/Todo to-do] list.
 
 If you find this plugin useful then please consider making a small donation encouraging me to keep developing it - any amount is happily accepted.
 
