@@ -1,0 +1,18 @@
+#summary Installation guide
+#labels Featured,Phase-Deploy
+
+= Installation and upgrading =
+
+There isn't any difference between installing this plugin for the first time and upgrading the plugin. 
+
+  # Download the latest featured release from the "Downloads" tab
+  # Save that file as `mbla.php` in your plugin-directory
+  # Activate the plugin called MBLA in your admin section
+  # Reconfigure the options to match your needs
+  # Add the following line to wherever you want the avatars to show up: {{{<?php if(function_exists('MyAvatars')) MyAvatars(); ?>}}}
+
+Following picture is an example of how the configuration can be done:
+
+[http://kamajole.dk/cp/displayimage-15408.html http://kamajole.dk/cp/albums/Blandet/thumb_20070607_085300_mbla.png]
+
+*If at any point something is messed up, then just click the "Reset to default values" from the Option page.*
