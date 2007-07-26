@@ -1,0 +1,10 @@
+#summary Improvements I am currently working on
+#labels Featured
+
+= In the work =
+
+  * New user interface (read plugin options)
+  * Better scaleability for future services
+  * Improved avatar handling
+  * Customize everything about the output of the plugin
+  * Speed improvements
