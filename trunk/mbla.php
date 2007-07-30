@@ -78,8 +78,6 @@ function mbla_manage_options() {
 
 function mbla_default_options($action = '', $inarr = array()) {
   global $wpdb, $mbla_options, $mbla;
-//  $admin_email     = get_settings('admin_email');
-//  $admin_email_md5 = md5($admin_email);
 
   if ( 'default' == $action ) {
     $mbla_options = array('cache_days'          => 3,
@@ -102,12 +100,6 @@ function mbla_default_options($action = '', $inarr = array()) {
 
     update_option('mbla_options', $mbla_options);
   }
-
-//      echo "<pre>POST:";
-//      print_r($_POST);
-//      echo "OPTION:";
-//      print_r($mbla_options);
-//      echo "</pre>";
 
   $info = "The following keywords will be replaced (case sensitive):<br/>";
   $arr_keywords = array('URL'        => 'the URL from the commenter',
@@ -209,9 +201,6 @@ function switchPri(box1, box2) {
   echo   "<td valign='top' colspan='2'>";
   echo     "<tt style='font-size: 10px;'>{$_SERVER['DOCUMENT_ROOT']}</tt>";
   echo     "<input type='text' name='anonymous' value='{$mbla_options['anonymous']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
-  if (file_exists($mbla['fileanonymous']) && !file_exists("{$mbla['filecache']}/{$mbla['anonymous_email_md5']}")) {
-//    copy($mbla['fileanonymous'], "{$mbla['filecache']}/{$mbla['anonymous_email_md5']}");
-  }
   if (!file_exists($mbla['fileanonymous'])) {
     echo  "<br/><i style='color: red;'>The anonymous avatar file doesn't exist!</i>";
   }
