@@ -1,0 +1,56 @@
+#summary Help for configuring this plugin
+#labels Phase-Deploy
+
+= Avatar cache location =
+
+This setting is essential in order to make this plugin work. The setting should point to a writeable folder anywhere under the document root.
+
+Sample setting: {{{/blog/wp-cache}}}
+
+= Custom anonymous avatar file =
+
+This is an optional setting that adds an additional "box" to the "Avatar Fetch Cycle". The setting should point to a smallish image, which can be used as the anonymous avatar file.
+
+Sample setting: {{{/images/anonymous.png}}}
+
+= Avatar Fetch Cycle =
+This is the fetch cycle of which avatar that is going to be used in comments, posts, etc. The box at the top, is the service that will be queried for an avatar first. If that service can't give a valid avatar, then the next service will be queried.
+
+If the "None" box is queried, then no avatar is returned. This can be used if you for some reason only want to show i.e. [http://gravatars.com Gravatar] and no avatar at all if the poster doesn't have a [http://gravatars.com Gravatar].
+
+The various "Anonymous Avatar" boxes always return an avatar, that being either one of the services avatar or the custom avatar (if configured). 
+
+The fetch cycle will in other words never pass the "None" box and the "Anonymous Avatar" boxes.
+
+= Check for updated avatar after x day(s) =
+
+When is the fetched avatar considered outdated? Theoretically then it would be best to not use this setting at all, which would mean that a new avatar is fetched everytime a person loads a webpage using this plugin. Unfortunately this means much longer load times for each page and it's considered bad behaviour to do such a thing against those services that hosts the avatars in the first place. 
+
+Personally I have the setting set to 3 days.
+
+= HTML code for =
+This is the HTML code that is returned everytime the main function is called. In other words then the HTML code you put under i.e. "Comments" is the HTML code that will be shown on every comment. There are some keywords that can be used, which will be replaced at runtime.
+
+Those keywords are:
+  * {URL} will be replaced with the URL from the commenter
+  * {NAME} will be replaced with the name of the commenter
+  * {MD5} will be replaced with the MD5(email) of the commenter
+  * {TITLE} will be replaced with the title of the post
+  * {AVATAR} will be replaced with the avatar of the commenter
+
+== Posts ==
+This is the HTML code that is used if the function {{{MyAvatars()}}} are called inside a post.
+
+== Comments ==
+This is the HTML code that is used if the function {{{MyAvatars()}}} are called inside a comment
+
+== Comments (anonymous) ==
+This is the HTML code that is used if the function {{{MyAvatars()}}} are called inside a comment AND if the commenter is anonymous (meaning that an avatar can't be found).
+
+== Pingbacks ==
+This is the HTML code that is used if the function {{{MyAvatars()}}} are called inside a pingback.
+
+== No avatar available ==
+This is the HTML code that is used if the function {{{MyAvatars()}}} are called anywhere AND the "None" box is used.
+
+
