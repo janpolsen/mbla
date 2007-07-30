@@ -3,7 +3,7 @@
 
 = History =
 
-== 2007-01-10 - v0.2 ==
+== 2007-01-10 - v0.2 ===
 Initial 'release'. Idea and credits for this release goes fully to [http://www.napolux.com/2006/12/14/myavatars-a-wordpress-plugin-for-mybloglog Napolux].
 
 == 2007-01-12 - v0.4 ==
@@ -53,3 +53,10 @@ I have also removed the custom class and style on the anonymous avatar selection
 Widened the automatic cleanup of corrupted/invalid avatars
 
 Added support for customizing which URL the avatar links to. There might come more options for this, but right now I can't find think of what more to add.
+
+== 2007-07-31 - v0.23 ==
+Major parts of the plugin has been rewritten, including the parts that handle which services it's possible to use. This means that when/if i.e. [http://facebook.com Facebook] decides to add a way of querying avatars, then it should be rather simple to add that to the list of services.
+
+The "Avatar Fetch Cycle" has been introduced
+
+The available options has been cut down to the most essential, but instead of cutting down on the customization then it's now possible to customize the generated HTML code 100%.
