@@ -38,6 +38,14 @@ Those keywords are:
   * {TITLE} will be replaced with the title of the post
   * {AVATAR} will be replaced with the avatar of the commenter
 
+Sample usage:
+{{{
+<div style="float: left;">
+  <a href="{URL}" title="Visit {NAME}'s site">
+    <img src="{AVATAR}" alt="{NAME} commenting on {TITLE}" style="height: 32px" />
+  </a>
+</div>
+}}}
 == Posts ==
 This is the HTML code that is used if the function {{{MyAvatars()}}} are called inside a post.
 
@@ -52,5 +60,6 @@ This is the HTML code that is used if the function {{{MyAvatars()}}} are called 
 
 == No avatar available ==
 This is the HTML code that is used if the function {{{MyAvatars()}}} are called anywhere AND the "None" box is used.
+
 
 
