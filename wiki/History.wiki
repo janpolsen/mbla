@@ -16,7 +16,7 @@ Class options has been added
 Fixed an issue with the size of avatars on trackbacks
 
 == 2007-01-13 - v0.6 ==
-Fixed an issue where the ghost avatar didn't exist. Now it should use MBL's default avatar if the user?s avatar couldn't be found.
+Fixed an issue where the ghost avatar didn't exist. Now it should use [http://mybloglog.com MyBlogLog]'s default avatar if the user's avatar couldn't be found.
 
 == 2007-01-14 - v0.7 ==
 The 'ghost avatar' seemed to rise some questions and since I have no other explanation of calling it a 'ghost avatar' besides my icon looking like a ghost, then I have renamed all occurrences of 'ghost' to 'anonymous'.
@@ -27,14 +27,14 @@ I have also added an option to see what the cache contains. On the 'Options' -> 
 The plugin now check if there is a newer version of itself available. It's not automatically installing anything - it's just telling you if there is an update.
 
 == 2007-01-15 - v0.9 ==
-Added a feature that lets you use a snapshot of your own site as the avatar of pingback comments (from yourself). In order to use this you have to type in your MyBloglog ID in the options page.
+Added a feature that lets you use a snapshot of your own site as the avatar of pingback comments (from yourself). In order to use this you have to type in your [http://mybloglog.com MyBlogLog] ID in the options page.
 
 == 2007-01-17 - v0.10 ==
 Rewrote the method that avatars are being fetched. I now use PHP's curl-functions instead of file_get_contents().
 
 == 2007-01-21 - v0.15 ==
 Added Gravatar support.
-Choose which service you would look at first (Gravatar or MyBlogLog), grab the avatar from that service and if there isn't an avatar for the given user there, then try to grab one from the other service. If that service doesn't contain an avatar either, then return the anonymous avatar.
+Choose which service you would look at first ([http://gravatars.com Gravatars] or [http://mybloglog.com MyBlogLog]), grab the avatar from that service and if there isn't an avatar for the given user there, then try to grab one from the other service. If that service doesn't contain an avatar either, then return the anonymous avatar.
 
 Made the plugin a little more intelligent. Now it automaticall downloads the anonymous avatar for each service and afterwards checks a users avatar against those anonymous avatars. This method makes the option "mbl anonymous avatar size" obsolete, so I have removed that.
 
@@ -54,9 +54,11 @@ Widened the automatic cleanup of corrupted/invalid avatars
 
 Added support for customizing which URL the avatar links to. There might come more options for this, but right now I can't find think of what more to add.
 
-== 2007-07-31 - v0.23 ==
+== 2007-07-31 - v0.24 ==
 Major parts of the plugin has been rewritten, including the parts that handle which services it's possible to use. This means that when/if i.e. [http://facebook.com Facebook] decides to add a way of querying avatars, then it should be rather simple to add that to the list of services.
 
 The "Avatar Fetch Cycle" has been introduced
 
 The available options has been cut down to the most essential, but instead of cutting down on the customization then it's now possible to customize the generated HTML code 100%.
+
+Added [http://googlepreview.com GooglePreview]'s avatars which rendered [http://mybloglog.com MyBlogLog] site avatars obsolete. This also means that there is no use for [http://mybloglog.com MyBlogLog] ID anymore.
