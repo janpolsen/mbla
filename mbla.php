@@ -2,29 +2,11 @@
 /*
 Plugin Name: MBLA
 Plugin URI: http://kamajole.dk/plugins/mbla/
-Description: Use Gravatars and/or MyBlogLog avatars in your posts, comments and pingbacks.
-Version: 0.24
+Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks.
+Version: 0.26
 Author: Jan Olsen
 Author URI: http://kamajole.dk
 */
-if (!function_exists('checkVersion')) {
-  function checkVersion() {
-    $latest  = "http://".strtr(basename($_GET['page'], '.php'), '_', '-').".googlecode.com/svn/trunk/{$_GET['page']}";
-    $tmpfile = str_replace(array('<br />','&nbsp;'),
-                           array(chr(10).chr(13),' '),
-                           curlGet($latest));
-    preg_match_all('/Version: (.*)/', $tmpfile, $matches);
-    $latest_version = $matches[1][0];
-    $_tmp = file(dirname(__FILE__).'/'.$_GET['page']);
-    list($dummy, $this_version) = explode(' ', $_tmp[5]);
-    if (trim($latest_version) != trim($this_version)) {
-      return "<div style='color: red;'>You are running version {$this_version} - there is a <a href='{$latest}'>newer version {$latest_version} available</a></div>";
-    } else {
-      return "<div style='color: green;'>You are running the latest version {$this_version}</div>";
-    }
-  }
-}
-
 add_action ('admin_menu', 'mbla_menu');
 $mbla_options = get_option('mbla_options');
 $mbla = array('services'            => array('mybloglog' => 'MyBlogLog',
@@ -32,11 +14,12 @@ $mbla = array('services'            => array('mybloglog' => 'MyBlogLog',
                                              ),
               'urlcache'            => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['cache_location']}",
               'filecache'           => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']}",
-              'fileanonymous'       => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['anonymous']}",
-              'urlanonymous'        => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['anonymous']}",
+              'filecustom'          => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['custom']}",
+              'urlcustom'           => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['custom']}",
               'anonymous_email'     => 'xxx@xxx.xxx',
               'anonymous_email_md5' => md5('xxx@xxx.xxx'),
               );
+
 function mbla_menu() {
 //  global $mbla_options;
   add_options_page('MBLA Options', 'MBLA', 9, __FILE__, 'mbla_manage_options');
@@ -78,11 +61,13 @@ function mbla_manage_options() {
 
 function mbla_default_options($action = '', $inarr = array()) {
   global $wpdb, $mbla_options, $mbla;
+//  $admin_email     = get_settings('admin_email');
+//  $admin_email_md5 = md5($admin_email);
 
   if ( 'default' == $action ) {
     $mbla_options = array('cache_days'          => 3,
                           'anonymous_service'   => implode('', array_keys(array_slice($mbla['services'], 0, 1))),
-                          'prival'              => implode(',',array_keys($mbla['services'])).',custom_anon,none'
+                          'prival'              => implode(',',array_keys($mbla['services'])).',custom,none'
                          );
     update_option('mbla_options', $mbla_options);
   } elseif ('update' == $action) {
@@ -91,10 +76,13 @@ function mbla_default_options($action = '', $inarr = array()) {
     // make sure we have our anonymous avatars
     // we need to do this here, so we can catch our md5 values of the anonymous avatars and save them at the same time
     if ($mbla_options['cache_location']) {
-      foreach ($mbla['services'] AS $tabid => $tabtitle) {
-        $localFileFullPath = "{$mbla['filecache']}/{$mbla['anonymous_email_md5']}";
-        $md5 = fetchAvatar($mbla['anonymous_email'], $tabid);
-        $mbla_options['md5_anon'][$tabid] = $md5['file'];
+      // first grap the admins avatar
+      foreach (array_reverse(explode(',', $mbla_options['prival'])) AS $tabid) {
+        $service = str_replace('_anon', '', $tabid);
+        if (strpos($tabid, '_anon')) {
+          $md5 = fetchAvatar($mbla['anonymous_email'], $service);
+          $mbla_options['md5_anon'][str_replace('_anon', '', $tabid)] = $md5['file'];
+        }
       }
     }
 
@@ -188,21 +176,23 @@ function switchPri(box1, box2) {
   echo   "</td>";
   echo   "<td colspan='2'>";
   echo     "<tt style='font-size: 10px;'>{$_SERVER['DOCUMENT_ROOT']}</tt>";
-  echo     "<input type='text' name='cache_location' value='" . $mbla_options['cache_location'] . "' style='width: 250px; font-family: monospace; font-size: 10px;' />";
-  echo     (!is_writeable($mbla['filecache']) ? "<br/><i style='color: red;'>This cache location isn't writeable!</i>" : '');
+  echo     "<input type='text' name='cache_location' value='{$mbla_options['cache_location']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
+  if ($mbla_options['cache_location'] && !is_writeable("{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']}")) {
+    echo "<br/><i style='color: red;'>{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']} isn't writeable! (".substr(sprintf('%o', @fileperms($mbla['filecache'])), -4).")</i>";
+  }
   echo   "</td>";
   echo "</tr>";
 
   echo "<tr>";
   echo   "<td valign='top' >";
-  echo     "Custom anonymous avatar file<br/>";
+  echo     "Custom avatar file<br/>";
   echo     "<em>relative to document root</em>";
   echo   "</td>";
   echo   "<td valign='top' colspan='2'>";
   echo     "<tt style='font-size: 10px;'>{$_SERVER['DOCUMENT_ROOT']}</tt>";
-  echo     "<input type='text' name='anonymous' value='{$mbla_options['anonymous']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
-  if (!file_exists($mbla['fileanonymous'])) {
-    echo  "<br/><i style='color: red;'>The anonymous avatar file doesn't exist!</i>";
+  echo     "<input type='text' name='custom' value='{$mbla_options['custom']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
+  if ($mbla_options['custom'] && !file_exists("{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['custom']}")) {
+    echo  "<br/><i style='color: red;'>The custom avatar file doesn't exist!</i>";
   }
   echo   "</td>";
   echo "</tr>";
@@ -217,8 +207,8 @@ function switchPri(box1, box2) {
     $avail_services[$tabid] = $tabtitle;
     $avail_services[$tabid.'_anon'] = $tabtitle.'\'s Anonymous Avatar';
   }
-  if ($mbla_options['anonymous']) {
-    $avail_services['custom_anon'] = 'Custom Anonymous Avatar';
+  if ($mbla_options['custom']) {
+    $avail_services['custom'] = 'Custom Avatar';
   }
   $avail_services['none'] ='None';
   $choosen_services = explode(',', $mbla_options['prival']);
@@ -311,7 +301,7 @@ function switchPri(box1, box2) {
   echo     "This plugin makes use of:";
   echo     "<ul>";
   echo       "<li><a href='http://mybloglog.com'>MyBlogLog avatars</a></li>";
-  echo       "<li><a href='http://gravatar.com'>Gravatars</a></li>";
+  echo       "<li><a href='http://gravastars.com'>Gravatars</a></li>";
   echo       "<li><a href='http://googlepreview.com'>GooglePreview</a></li>";
   echo     "</ul>";
   echo   "</p>";
@@ -369,8 +359,9 @@ function mbla_show_cache_content() {
 
         case 'anon': foreach (glob($mbla['filecache']."/*") as $filename) {
                        foreach ($mbla['services'] AS $tabid => $tabtitle) {
-                         if (file_exists($filename) && md5_file($filename) == $mbla_options['md5_anon'][$tabid]) {
-                           @unlink($filename);
+
+                         if (file_exists($filename) && in_array(md5_file($filename), $mbla_options['md5_anon'])) {
+                           unlink($filename);
                          }
                        }
                        unset($url['delete']);
@@ -451,16 +442,19 @@ function id2URL($service, $id, $md5id) {
   global $mbla, $mbla_options;
   if (strpos($id, '@')) {
     switch (strtolower($service)) {
-      case 'gravatar' : return "http://www.gravatar.com/avatar.php?gravatar_id={$md5id}&rating=X";
-                        break;
+      case 'gravatar'   : return "http://www.gravatar.com/avatar.php?gravatar_id={$md5id}&rating=X";
+                          break;
 
-      case 'custom'   : return "{$mbla['urlanonymous']}";
-                        break;
+      case 'mybloglog'  : return "http://pub.mybloglog.com/coiserv.php?href=mailto:{$id}";
+                          break;
 
-      case 'mybloglog': return "http://pub.mybloglog.com/coiserv.php?href=mailto:{$id}";
-                        break;
+      case 'custom'     : return "{$mbla['urlcustom']}";
+                          break;
 
-      default         : return null; break;
+      case 'anon'       : return "{$mbla['urlcache']}/{$mbla['anonymous_email_md5']}";
+                          break;
+
+      default           : return null; break;
     }
   } else {
     $tmp = parse_url($id);
@@ -501,7 +495,7 @@ function fetchAvatar($INemail = null, $INservice = null) {
   }
   $md5id = md5($id);
 
-  if (updateNeeded($md5id)) {
+  if (updateNeeded($md5id) || $INservice) {
     // an update is needed
     $services = ($INservice ? array($INservice) : explode(',', $mbla_options['prival']));
     while ($service = array_shift($services)) {
@@ -511,20 +505,22 @@ function fetchAvatar($INemail = null, $INservice = null) {
       } else {
         // cycle through the services
 
-        switch ($service) {
-          case 'gravatar'   : $remoteFileURL = id2URL('gravatar' , $id, $md5id); break;
-          case 'mybloglog'  : $remoteFileURL = id2URL('mybloglog', $id, $md5id);  break;
-          case 'custom_anon': $remoteFileURL = id2URL('custom' , $id, $md5id); break;
-          case 'none'       :
-          default           : return null;
-        }
+          switch ($service) {
+            case 'gravatar'      : $remoteFileURL = id2URL('gravatar' , $id, $md5id); break;
+            case 'mybloglog'     : $remoteFileURL = id2URL('mybloglog', $id, $md5id); break;
+            case 'custom'        : $remoteFileURL = id2URL('custom'   , $id, $md5id); break;
+            case 'mybloglog_anon':
+            case 'gravatar_anon' : $remoteFileURL = id2URL('anon'     , $id, $md5id); $INservice = 'localanon'; break;
+            case 'none'          :
+            default              : return null;
+          }
 
-        $ret = downloadURL($remoteFileURL, $md5id, $INservice);
+          $ret = downloadURL($remoteFileURL, $md5id, $INservice);
 
-        if (!isAnon($ret) || $INservice) {
-          return array('file' => $ret,
-                       'id'   => $md5id);
-        }
+          if (!isAnon($ret) || $INservice) {
+            return array('file' => $ret,
+                         'id'   => $md5id);
+          }
       }
     }
   } else {
@@ -534,10 +530,15 @@ function fetchAvatar($INemail = null, $INservice = null) {
   }
 }
 
-function MyAvatars($INemail = '', $INservice = '') {
+function MyAvatars($INemail = '', $INservice = '', $update_method = 'rules') {
   global $mbla, $comment, $authordata, $mbla_options;
 
+//  $update_method= 'always';
   $md5 = fetchAvatar();
+
+  // $comment->comment_ID   === NULL         -> post
+  // $comment->comment_type  == 'pingback'   -> pingback
+  // $comment->comment_type  == ''           -> comment
 
   if ($md5 === null) {
     $based_on = 'final_html_none';
@@ -614,6 +615,24 @@ if(!function_exists('curlGet')) {
     $tmp = curl_exec($ch);
     curl_close($ch);
     return $tmp;
+  }
+}
+
+if (!function_exists('checkVersion')) {
+  function checkVersion() {
+    $latest  = "http://".strtr(basename($_GET['page'], '.php'), '_', '-').".googlecode.com/svn/trunk/{$_GET['page']}";
+    $tmpfile = str_replace(array('<br />','&nbsp;'),
+                           array(chr(10).chr(13),' '),
+                           curlGet($latest));
+    preg_match_all('/Version: (.*)/', $tmpfile, $matches);
+    $latest_version = $matches[1][0];
+    $_tmp = file(dirname(__FILE__).'/'.$_GET['page']);
+    list($dummy, $this_version) = explode(' ', $_tmp[5]);
+    if (trim($latest_version) != trim($this_version)) {
+      return "<div style='color: red;'>You are running version {$this_version} - there is a <a href='{$latest}'>newer version {$latest_version} available</a></div>";
+    } else {
+      return "<div style='color: green;'>You are running the latest version {$this_version}</div>";
+    }
   }
 }
 
