@@ -311,7 +311,7 @@ function switchPri(box1, box2) {
   echo     "This plugin makes use of:";
   echo     "<ul>";
   echo       "<li><a href='http://mybloglog.com'>MyBlogLog avatars</a></li>";
-  echo       "<li><a href='http://gravastars.com'>Gravatars</a></li>";
+  echo       "<li><a href='http://gravatar.com'>Gravatars</a></li>";
   echo       "<li><a href='http://googlepreview.com'>GooglePreview</a></li>";
   echo     "</ul>";
   echo   "</p>";
