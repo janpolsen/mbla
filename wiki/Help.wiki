@@ -1,5 +1,5 @@
 #summary Help for configuring this plugin
-#labels Phase-Deploy
+#labels Featured,Phase-Deploy
 
 = Avatar cache location =
 
