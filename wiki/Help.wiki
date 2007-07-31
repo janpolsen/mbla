@@ -7,9 +7,9 @@ This setting is essential in order to make this plugin work. The setting should 
 
 Sample setting: {{{/blog/wp-cache}}}
 
-= Custom anonymous avatar file =
+= Custom avatar file =
 
-This is an optional setting that adds an additional "box" to the "Avatar Fetch Cycle". The setting should point to a smallish image, which can be used as the anonymous avatar file.
+This is an optional setting that adds an additional "box" to the "Avatar Fetch Cycle". The setting should point to a smallish image, which can be used as a custom avatar file.
 
 Sample setting: {{{/images/anonymous.png}}}
 
@@ -18,7 +18,7 @@ This is the fetch cycle of which avatar that is going to be used in comments, po
 
 If the "None" box is queried, then no avatar is returned. This can be used if you for some reason only want to show i.e. [http://gravatar.com Gravatar] and no avatar at all if the poster doesn't have a [http://gravatar.com Gravatar].
 
-The various "Anonymous Avatar" boxes always return an avatar, that being either one of the services avatar or the custom avatar (if configured).
+The various "Anonymous Avatar" boxes always return an avatar, that being either one of the services' avatar or the custom avatar (if configured).
 
 The fetch cycle will in other words never pass the "None" box and the "Anonymous Avatar" boxes.
 
