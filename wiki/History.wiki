@@ -33,8 +33,8 @@ Added a feature that lets you use a snapshot of your own site as the avatar of p
 Rewrote the method that avatars are being fetched. I now use PHP's curl-functions instead of file_get_contents().
 
 == 2007-01-21 - v0.15 ==
-Added Gravatar support.
-Choose which service you would look at first ([http://gravatars.com Gravatars] or [http://mybloglog.com MyBlogLog]), grab the avatar from that service and if there isn't an avatar for the given user there, then try to grab one from the other service. If that service doesn't contain an avatar either, then return the anonymous avatar.
+Added [http://gravatar.com Gravatar] support.
+Choose which service you would look at first ([http://gravatar.com Gravatar] or [http://mybloglog.com MyBlogLog]), grab the avatar from that service and if there isn't an avatar for the given user there, then try to grab one from the other service. If that service doesn't contain an avatar either, then return the anonymous avatar.
 
 Made the plugin a little more intelligent. Now it automaticall downloads the anonymous avatar for each service and afterwards checks a users avatar against those anonymous avatars. This method makes the option "mbl anonymous avatar size" obsolete, so I have removed that.
 

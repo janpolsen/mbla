@@ -16,15 +16,15 @@ Sample setting: {{{/images/anonymous.png}}}
 = Avatar Fetch Cycle =
 This is the fetch cycle of which avatar that is going to be used in comments, posts, etc. The box at the top, is the service that will be queried for an avatar first. If that service can't give a valid avatar, then the next service will be queried.
 
-If the "None" box is queried, then no avatar is returned. This can be used if you for some reason only want to show i.e. [http://gravatars.com Gravatar] and no avatar at all if the poster doesn't have a [http://gravatars.com Gravatar].
+If the "None" box is queried, then no avatar is returned. This can be used if you for some reason only want to show i.e. [http://gravatar.com Gravatar] and no avatar at all if the poster doesn't have a [http://gravatar.com Gravatar].
 
-The various "Anonymous Avatar" boxes always return an avatar, that being either one of the services avatar or the custom avatar (if configured). 
+The various "Anonymous Avatar" boxes always return an avatar, that being either one of the services avatar or the custom avatar (if configured).
 
 The fetch cycle will in other words never pass the "None" box and the "Anonymous Avatar" boxes.
 
 = Check for updated avatar after x day(s) =
 
-When is the fetched avatar considered outdated? Theoretically then it would be best to not use this setting at all, which would mean that a new avatar is fetched everytime a person loads a webpage using this plugin. Unfortunately this means much longer load times for each page and it's considered bad behaviour to do such a thing against those services that hosts the avatars in the first place. 
+When is the fetched avatar considered outdated? Theoretically then it would be best to not use this setting at all, which would mean that a new avatar is fetched everytime a person loads a webpage using this plugin. Unfortunately this means much longer load times for each page and it's considered bad behaviour to do such a thing against those services that hosts the avatars in the first place.
 
 Personally I have the setting set to 3 days.
 
