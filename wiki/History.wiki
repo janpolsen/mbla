@@ -62,3 +62,8 @@ The "Avatar Fetch Cycle" has been introduced
 The available options has been cut down to the most essential, but instead of cutting down on the customization then it's now possible to customize the generated HTML code 100%.
 
 Added [http://googlepreview.com GooglePreview]'s avatars which rendered [http://mybloglog.com MyBlogLog] site avatars obsolete. This also means that there is no use for [http://mybloglog.com MyBlogLog] ID anymore.
+
+== 2007-07-31 - v0.26 ==
+Rewrote the "Custom Anonymous Avatar" to work as a static service instead of a special anonymous avatar. It doesn't really have to have anything to do with anonymousity.
+
+Fixed the "Avatar Fetch Cycle" so all boxes work... finally :)
