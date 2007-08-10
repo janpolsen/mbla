@@ -3,13 +3,14 @@
 
 = Installation and upgrading =
 
-There isn't any difference between installing this plugin for the first time and upgrading the plugin. 
+There isn't any difference between installing this plugin for the first time and upgrading the plugin.
 
-  # Download the latest featured release from the "Downloads" tab
-  # Save that file as `mbla.php` in your plugin-directory
-  # Activate the plugin called MBLA in your admin section
+  # Download the latest featured release from the [http://code.google.com/p/mbla/downloads/list Downloads] tab
+  # Save that file as `mbla.php` in your plugin-directory (usually /wp-content/plugins)
+  # Activate the plugin called MBLA from the [http://wordpress.org Wordpress] plugins adminitration interface
   # Reconfigure the options to match your needs
-  # Add the following line to wherever you want the avatars to show up: {{{<?php if(function_exists('MyAvatars')) MyAvatars(); ?>}}}
+  # Remember to add some HTML code on MBLA's HTML option page
+  # Add the following line to wherever you want the avatar to show up: {{{<?php if(function_exists('MyAvatars')) MyAvatars(); ?>}}}
 
 Following picture is an example of how the configuration can be done:
 
