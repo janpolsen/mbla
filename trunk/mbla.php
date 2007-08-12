@@ -580,7 +580,7 @@ function MyAvatars($INemail = '', $INservice = '', $update_method = 'rules') {
 
 function isAnon($INmd5) {
   global $mbla_options, $mbla;
-  $anon = (md5_file("{$mbla['filecache']}/{$INmd5}") == $mbla['anonymous_file_md5']);
+  $anon = (@md5_file("{$mbla['filecache']}/{$INmd5}") == $mbla['anonymous_file_md5']);
   return in_array($INmd5, (array)$mbla_options['md5_anon']) || $anon;
 }
 
