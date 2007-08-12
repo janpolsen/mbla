@@ -67,3 +67,6 @@ Added [http://googlepreview.com GooglePreview]'s avatars which rendered [http://
 Rewrote the "Custom Anonymous Avatar" to work as a static service instead of a special anonymous avatar. It doesn't really have to have anything to do with anonymousity.
 
 Fixed the "Avatar Fetch Cycle" so all boxes work... finally :)
+
+== 2007-07-31 - v0.26 ==
+Fixed [http://code.google.com/p/mbla/issues/detail?id=3 issue #3]
