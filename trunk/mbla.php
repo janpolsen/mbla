@@ -3,7 +3,7 @@
 Plugin Name: MBLA
 Plugin URI: http://kamajole.dk/plugins/mbla/
 Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks.
-Version: 0.26
+Version: 0.27
 Author: Jan Olsen
 Author URI: http://kamajole.dk
 */
@@ -17,8 +17,10 @@ $mbla = array('services'            => array('mybloglog' => 'MyBlogLog',
               'filecustom'          => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['custom']}",
               'urlcustom'           => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['custom']}",
               'anonymous_email'     => 'xxx@xxx.xxx',
-              'anonymous_email_md5' => md5('xxx@xxx.xxx'),
               );
+$mbla['anonymous_file_md5']  = md5_file($mbla['filecustom']);
+$mbla['anonymous_email_md5'] = md5($mbla['anonymous_email']);
+
 
 function mbla_menu() {
 //  global $mbla_options;
@@ -520,12 +522,13 @@ function fetchAvatar($INemail = null, $INservice = null) {
           if (!isAnon($ret) || $INservice) {
             return array('file' => $ret,
                          'id'   => $md5id);
+          } else {
           }
       }
     }
   } else {
     // no update is needed so just return the md5id
-    return array('file' => null,
+    return array('file' => $md5id,
                  'id'   => $md5id);
   }
 }
@@ -536,17 +539,18 @@ function MyAvatars($INemail = '', $INservice = '', $update_method = 'rules') {
 //  $update_method= 'always';
   $md5 = fetchAvatar();
 
+
   // $comment->comment_ID   === NULL         -> post
   // $comment->comment_type  == 'pingback'   -> pingback
   // $comment->comment_type  == ''           -> comment
-
   if ($md5 === null) {
     $based_on = 'final_html_none';
   } elseif ($comment->comment_ID === NULL) {
     $based_on = 'final_html_post';
   } elseif ($comment->comment_type == 'pingback') {
     $based_on = 'final_html_pingback';
-  } elseif ($comment->comment_type == '' || $comment->comment_type == 'comment') {
+  } elseif ($comment->comment_type == '' ||
+            $comment->comment_type == 'comment') {
     $based_on = 'final_html_comment';
     if (isAnon($md5['file'])) {
       $based_on .= '_anon';
@@ -575,8 +579,9 @@ function MyAvatars($INemail = '', $INservice = '', $update_method = 'rules') {
 }
 
 function isAnon($INmd5) {
-  global $mbla_options;
-  return in_array($INmd5, (array)$mbla_options['md5_anon']);
+  global $mbla_options, $mbla;
+  $anon = (md5_file("{$mbla['filecache']}/{$INmd5}") == $mbla['anonymous_file_md5']);
+  return in_array($INmd5, (array)$mbla_options['md5_anon']) || $anon;
 }
 
 
@@ -588,6 +593,7 @@ function downloadURL($URL, $NEWNAME, $forced) {
 
   if (!isAnon($tmp_md5) || $forced) {
     file_put("{$mbla['filecache']}/{$NEWNAME}", $tmp);
+  } else {
   }
   return $tmp_md5;
 }
@@ -635,5 +641,4 @@ if (!function_exists('checkVersion')) {
     }
   }
 }
-
 ?>
