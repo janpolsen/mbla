@@ -68,5 +68,5 @@ Rewrote the "Custom Anonymous Avatar" to work as a static service instead of a s
 
 Fixed the "Avatar Fetch Cycle" so all boxes work... finally :)
 
-== 2007-07-31 - v0.26 ==
+== 2007-07-31 - v0.27b ==
 Fixed [http://code.google.com/p/mbla/issues/detail?id=3 issue #3]
