@@ -2,69 +2,69 @@
 #labels Featured
 
 === 2007-01-10 - v0.2 ====
-Initial 'release'. Idea and credits for this release goes fully to [http://www.napolux.com/2006/12/14/myavatars-a-wordpress-plugin-for-mybloglog Napolux].
+http://mbla.googlecode.com/svn/wiki/star.png Initial 'release'. Idea and credits for this release goes fully to [http://www.napolux.com/2006/12/14/myavatars-a-wordpress-plugin-for-mybloglog Napolux].
 
 === 2007-01-12 - v0.4 ===
-A local file cache has been added
-The whole plugin has been converted from hardcoded values to values that can be changed in Options -> MBLA
+http://mbla.googlecode.com/svn/wiki/plugin.png A local file cache has been added
+
+http://mbla.googlecode.com/svn/wiki/script_code.png The whole plugin has been converted from hardcoded values to values that can be changed in Options -> MBLA
 
 === 2007-01-13 - v0.5 ===
-Class options has been added
+http://mbla.googlecode.com/svn/wiki/plugin.png  Class options has been added
 
-Fixed an issue with the size of avatars on trackbacks
+http://mbla.googlecode.com/svn/wiki/bug.png Fixed an issue with the size of avatars on trackbacks
 
 === 2007-01-13 - v0.6 ===
-Fixed an issue where the ghost avatar didn't exist. Now it should use [http://mybloglog.com MyBlogLog]'s default avatar if the user's avatar couldn't be found.
+http://mbla.googlecode.com/svn/wiki/bug.png Fixed an issue where the ghost avatar didn't exist. Now it should use [http://mybloglog.com MyBlogLog]'s default avatar if the user's avatar couldn't be found.
 
 === 2007-01-14 - v0.7 ===
-The 'ghost avatar' seemed to rise some questions and since I have no other explanation of calling it a 'ghost avatar' besides my icon looking like a ghost, then I have renamed all occurrences of 'ghost' to 'anonymous'.
+http://mbla.googlecode.com/svn/wiki/script_code.png The 'ghost avatar' seemed to rise some questions and since I have no other explanation of calling it a 'ghost avatar' besides my icon looking like a ghost, then I have renamed all occurrences of 'ghost' to 'anonymous'.
 
-I have also added an option to see what the cache contains. On the 'Options' -> 'MBLA' page, there should be a '(show current content of cache)' which opens a new page along with the content of the cache. You can delete a single avatar, so it gets updated the next time it is requested on a post/comment or you can delete alle avatars.
+http://mbla.googlecode.com/svn/wiki/plugin.png I have also added an option to see what the cache contains. On the 'Options' -> 'MBLA' page, there should be a '(show current content of cache)' which opens a new page along with the content of the cache. You can delete a single avatar, so it gets updated the next time it is requested on a post/comment or you can delete alle avatars.
 
 === 2007-01-14 - v0.8 ===
-The plugin now check if there is a newer version of itself available. It's not automatically installing anything - it's just telling you if there is an update.
+http://mbla.googlecode.com/svn/wiki/script_code.png The plugin now check if there is a newer version of itself available. It's not automatically installing anything - it's just telling you if there is an update.
 
 === 2007-01-15 - v0.9 ===
-Added a feature that lets you use a snapshot of your own site as the avatar of pingback comments (from yourself). In order to use this you have to type in your [http://mybloglog.com MyBlogLog] ID in the options page.
+http://mbla.googlecode.com/svn/wiki/plugin.png Added a feature that lets you use a snapshot of your own site as the avatar of pingback comments (from yourself). In order to use this you have to type in your [http://mybloglog.com MyBlogLog] ID in the options page.
 
 === 2007-01-17 - v0.10 ===
-Rewrote the method that avatars are being fetched. I now use PHP's curl-functions instead of file_get_contents().
+http://mbla.googlecode.com/svn/wiki/script_code.png Rewrote the method that avatars are being fetched. I now use PHP's curl-functions instead of file_get_contents().
 
 === 2007-01-21 - v0.15 ===
-Added [http://gravatar.com Gravatar] support.
-Choose which service you would look at first ([http://gravatar.com Gravatar] or [http://mybloglog.com MyBlogLog]), grab the avatar from that service and if there isn't an avatar for the given user there, then try to grab one from the other service. If that service doesn't contain an avatar either, then return the anonymous avatar.
+http://mbla.googlecode.com/svn/wiki/plugin.png Added [http://gravatar.com Gravatar] support. Choose which service you would look at first ([http://gravatar.com Gravatar] or [http://mybloglog.com MyBlogLog]), grab the avatar from that service and if there isn't an avatar for the given user there, then try to grab one from the other service. If that service doesn't contain an avatar either, then return the anonymous avatar.
 
-Made the plugin a little more intelligent. Now it automaticall downloads the anonymous avatar for each service and afterwards checks a users avatar against those anonymous avatars. This method makes the option "mbl anonymous avatar size" obsolete, so I have removed that.
+http://mbla.googlecode.com/svn/wiki/script_code.png Made the plugin a little more intelligent. Now it automaticall downloads the anonymous avatar for each service and afterwards checks a users avatar against those anonymous avatars. This method makes the option "mbl anonymous avatar size" obsolete, so I have removed that.
 
-The cache content has also been rewritten in order to handle both types of avatars.
+http://mbla.googlecode.com/svn/wiki/script_code.png The cache content has also been rewritten in order to handle both types of avatars.
 Rewrote major parts of the plugin
 
 === 2007-01-23 - v0.16 ===
-When I changed the fetch-method in v0.10 I forgot to also change the method where I check for the latest version. This has been fixed now. Thanks [http://itsvista.com Joe]
+http://mbla.googlecode.com/svn/wiki/bug.png When I changed the fetch-method in v0.10 I forgot to also change the method where I check for the latest version. This has been fixed now. Thanks [http://itsvista.com Joe]
 
 === 2007-03-05 - v0.18 ===
 http://mbla.googlecode.com/svn/wiki/bug.png The way I find out if a post is a comment, pingback or an actual post was flawed. Thanks [http://dennys.tiger2.net Dennys] for pointing this out.
 
-I have also removed the custom class and style on the anonymous avatar selection list, so styles with i.e. `float: right;` doesn't mess it all up. Dennys also gets the credit for pointing this out.
+http://mbla.googlecode.com/svn/wiki/script_code.png I have also removed the custom class and style on the anonymous avatar selection list, so styles with i.e. `float: right;` doesn't mess it all up. Dennys also gets the credit for pointing this out.
 
 === 2007-05-28 - v0.20 ===
-Widened the automatic cleanup of corrupted/invalid avatars
+http://mbla.googlecode.com/svn/wiki/script_code.png Widened the automatic cleanup of corrupted/invalid avatars
 
-Added support for customizing which URL the avatar links to. There might come more options for this, but right now I can't find think of what more to add.
+http://mbla.googlecode.com/svn/wiki/script_code.png Added support for customizing which URL the avatar links to. There might come more options for this, but right now I can't find think of what more to add.
 
 === 2007-07-31 - v0.24 ===
-Major parts of the plugin has been rewritten, including the parts that handle which services it's possible to use. This means that when/if i.e. [http://facebook.com Facebook] decides to add a way of querying avatars, then it should be rather simple to add that to the list of services.
+http://mbla.googlecode.com/svn/wiki/script_code.png Major parts of the plugin has been rewritten, including the parts that handle which services it's possible to use. This means that when/if i.e. [http://facebook.com Facebook] decides to add a way of querying avatars, then it should be rather simple to add that to the list of services.
 
-The "Avatar Fetch Cycle" has been introduced
+http://mbla.googlecode.com/svn/wiki/script_code.png The "Avatar Fetch Cycle" has been introduced
 
-The available options has been cut down to the most essential, but instead of cutting down on the customization then it's now possible to customize the generated HTML code 100%.
+http://mbla.googlecode.com/svn/wiki/script_code.png The available options has been cut down to the most essential, but instead of cutting down on the customization then it's now possible to customize the generated HTML code 100%.
 
-Added [http://googlepreview.com GooglePreview]'s avatars which rendered [http://mybloglog.com MyBlogLog] site avatars obsolete. This also means that there is no use for [http://mybloglog.com MyBlogLog] ID anymore.
+http://mbla.googlecode.com/svn/wiki/plugin.png Added [http://googlepreview.com GooglePreview]'s avatars which rendered [http://mybloglog.com MyBlogLog] site avatars obsolete. This also means that there is no use for [http://mybloglog.com MyBlogLog] ID anymore.
 
 === 2007-07-31 - v0.26 ===
-Rewrote the "Custom Anonymous Avatar" to work as a static service instead of a special anonymous avatar. It doesn't really have to have anything to do with anonymousity.
+http://mbla.googlecode.com/svn/wiki/script_code.png Rewrote the "Custom Anonymous Avatar" to work as a static service instead of a special anonymous avatar. It doesn't really have to have anything to do with anonymousity.
 
-Fixed the "Avatar Fetch Cycle" so all boxes work... finally :)
+http://mbla.googlecode.com/svn/wiki/bug.png Fixed the "Avatar Fetch Cycle" so all boxes work... finally :)
 
 === 2007-07-31 - v0.27b ===
-Fixed [http://code.google.com/p/mbla/issues/detail?id=3 issue #3]
+http://mbla.googlecode.com/svn/wiki/bug.png Fixed [http://code.google.com/p/mbla/issues/detail?id=3 issue #3]
