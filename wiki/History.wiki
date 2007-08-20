@@ -1,8 +1,6 @@
 #summary History of this plugin
 #labels Featured
 
-== History ==
-
 === 2007-01-10 - v0.2 ====
 Initial 'release'. Idea and credits for this release goes fully to [http://www.napolux.com/2006/12/14/myavatars-a-wordpress-plugin-for-mybloglog Napolux].
 
