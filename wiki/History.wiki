@@ -43,7 +43,7 @@ Rewrote major parts of the plugin
 When I changed the fetch-method in v0.10 I forgot to also change the method where I check for the latest version. This has been fixed now. Thanks [http://itsvista.com Joe]
 
 === 2007-03-05 - v0.18 ===
-The way I find out if a post is a comment, pingback or an actual post was flawed. Thanks [http://dennys.tiger2.net Dennys] for pointing this out.
+http://mbla.googlecode.com/svn/wiki/bug.png The way I find out if a post is a comment, pingback or an actual post was flawed. Thanks [http://dennys.tiger2.net Dennys] for pointing this out.
 
 I have also removed the custom class and style on the anonymous avatar selection list, so styles with i.e. `float: right;` doesn't mess it all up. Dennys also gets the credit for pointing this out.
 
