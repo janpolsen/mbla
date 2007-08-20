@@ -40,25 +40,25 @@ Those keywords are:
 
 Sample usage:
 {{{
-<div style==="float: left;">
-  <a href==="{URL}" title==="Visit {NAME}'s site">
-    <img src==="{AVATAR}" alt==="{NAME} commenting on {TITLE}" style==="height: 32px" />
+<div style="float: left;">
+  <a href="{URL}" title="Visit {NAME}'s site">
+    <img src="{AVATAR}" alt="{NAME} commenting on {TITLE}" style="height: 32px" />
   </a>
 </div>
 }}}
-====== Posts ======
+==== Posts ====
 This is the HTML code that is used if the function {{{MyAvatars()}}} are called inside a post.
 
-====== Comments ======
+==== Comments ====
 This is the HTML code that is used if the function {{{MyAvatars()}}} are called inside a comment
 
-====== Comments (anonymous) ======
+==== Comments (anonymous) ====
 This is the HTML code that is used if the function {{{MyAvatars()}}} are called inside a comment AND if the commenter is anonymous (meaning that an avatar can't be found).
 
-====== Pingbacks ======
+==== Pingbacks ====
 This is the HTML code that is used if the function {{{MyAvatars()}}} are called inside a pingback.
 
-====== No avatar available ======
+==== No avatar available ====
 This is the HTML code that is used if the function {{{MyAvatars()}}} are called anywhere AND the "None" box is used.
 
 

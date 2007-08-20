@@ -1,7 +1,5 @@
-#summary Installation guide
+#summary Installation and upgrading guide
 #labels Featured,Phase-Deploy
-
-= Installation and upgrading =
 
 There isn't any difference between installing this plugin for the first time and upgrading the plugin.
 
@@ -13,7 +11,7 @@ There isn't any difference between installing this plugin for the first time and
   [http://kamajole.dk/cp/displayimage.php?pos=-15634 http://kamajole.dk/cp/albums/Blandet/thumb_20070810_175200_mbla_options_general.png]
   * Remember to add some HTML code on MBLA's HTML option page
   [http://kamajole.dk/cp/displayimage.php?pos=-15633 http://kamajole.dk/cp/albums/Blandet/thumb_20070810_175200_mbla_options_html.png]
-  * Add the following line to wherever you want the avatar to show up: 
+  * Add the following line to wherever you want the avatar to show up:
 {{{
 <?php if(function_exists('MyAvatars')) MyAvatars(); ?>
 }}}
