@@ -1,6 +1,5 @@
 #summary History of this plugin
 #labels Featured
-
 === 2007-01-10 - v0.2 ====
 http://mbla.googlecode.com/svn/wiki/star.png Initial 'release'. Idea and credits for this release goes fully to [http://www.napolux.com/2006/12/14/myavatars-a-wordpress-plugin-for-mybloglog Napolux].
 
