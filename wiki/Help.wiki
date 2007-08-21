@@ -1,6 +1,5 @@
-#summary Help for configuring this plugin
+#summary Help with configuring this plugin
 #labels Featured,Phase-Deploy
-
 === Avatar cache location ===
 
 This setting is essential in order to make this plugin work. The setting should point to a writeable folder anywhere under the document root.
@@ -60,6 +59,5 @@ This is the HTML code that is used if the function {{{MyAvatars()}}} are called 
 
 ==== No avatar available ====
 This is the HTML code that is used if the function {{{MyAvatars()}}} are called anywhere AND the "None" box is used.
-
 
 
