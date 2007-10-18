@@ -68,4 +68,8 @@ http://famfamfam.googlecode.com/svn/wiki/images/bug.png Fixed the "Avatar Fetch 
 === 2007-07-31 - v0.27b ===
 http://famfamfam.googlecode.com/svn/wiki/images/bug.png Fixed [http://code.google.com/p/mbla/issues/detail?id=3 issue #3]
  
+=== 2007-10-18 - v0.29 ===
+http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added PapyGeek's suggestion as written in [http://code.google.com/p/mbla/issues/detail?id=6 issue #6]
+
+http://famfamfam.googlecode.com/svn/wiki/images/script_code.png Fixed a few things so the code is 100% html compliant
  
