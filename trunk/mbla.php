@@ -3,7 +3,7 @@
 Plugin Name: MBLA
 Plugin URI: http://kamajole.dk/plugins/mbla/
 Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks.
-Version: 0.27
+Version: 0.29
 Author: Jan Olsen
 Author URI: http://kamajole.dk
 */
@@ -216,7 +216,7 @@ function switchPri(box1, box2) {
   $choosen_services = explode(',', $mbla_options['prival']);
   $choosenplus_services = array_merge(array_intersect($choosen_services, array_keys($avail_services)), array_diff(array_keys($avail_services), $choosen_services));
   $invalid = $tabcnt = 0; $first  = true;
-  echo           "<table id='pri' cellpadding='3' cellspacing='1' border='0' width='150px'>";
+  echo           "<table id='pri' cellpadding='3' cellspacing='1' style='width: 150px; border: 0'>";
   foreach ($choosenplus_services AS $tabid) {
     if ($avail_services[$tabid]) {
       echo           "<tr>";
@@ -242,8 +242,8 @@ function switchPri(box1, box2) {
       $invalid++;
     }
   }
-  echo           "<input type='hidden' size='80' name='prival' id='prival' value='".implode(',',$choosenplus_services)."' />";
   echo     "</table>";
+  echo     "<input type='hidden' size='80' name='prival' id='prival' value='".implode(',',$choosenplus_services)."' />";
   echo   "</td>";
   echo   "<td>&nbsp;</td>";
   echo "</tr>";
@@ -254,7 +254,7 @@ function switchPri(box1, box2) {
   echo   "</td>";
   echo   "<td>";
   echo     "<select name='cache_days' style='width: 50px;'>";
-  foreach (array(1,2,3,4,5,6,7) AS $i) echo "<option value='{$i}' ".($i == $mbla_options['cache_days'] ? 'selected' : '').">{$i}</option>";
+  foreach (array(1,2,3,4,5,6,7) AS $i) echo "<option value='{$i}' ".($i == $mbla_options['cache_days'] ? "selected='selected'" : '').">{$i}</option>";
   echo     "</select>days";
   echo     " (<a href='{$_SERVER['REQUEST_URI']}&amp;showcachecontent'>show current content of cache</a>)";
   echo   "</td>";
@@ -284,7 +284,7 @@ function switchPri(box1, box2) {
     echo     "<td valign='top' style='white-space: nowrap;'><b>".ucfirst($typtitle)."</b></td>";
     echo     "<td width='100%'>";
     echo        "<textarea name='final_html_{$typid}' rows='5' cols='80' style='font-family: monospace; font-size: 10px;'>";
-    echo          stripslashes($mbla_options["final_html_{$typid}"]);
+    echo          htmlentities(stripslashes($mbla_options["final_html_{$typid}"]));
     echo        "</textarea>";
     echo     "</td>";
     echo   "</tr>";
@@ -299,14 +299,12 @@ function switchPri(box1, box2) {
 
   echo "<fieldset style='display: none;'>";
   echo   "<p>This <a href='http://wordpress.org'>Wordpress</a> plugin is hosted at <a href='http://code.google.com/p/mbla/'>Google Code</a>, which means that everything about <a href='http://code.google.com/p/mbla/downloads/list'>download</a>, <a href='http://code.google.com/p/mbla/wiki/Installation'>installation</a>, <a href='http://code.google.com/p/mbla/issues/list'>issues</a> and <a href='http://code.google.com/p/mbla/wiki/Help'>help</a> can be found there.</p>";
-  echo   "<p>";
-  echo     "This plugin makes use of:";
-  echo     "<ul>";
-  echo       "<li><a href='http://mybloglog.com'>MyBlogLog avatars</a></li>";
-  echo       "<li><a href='http://gravastars.com'>Gravatars</a></li>";
-  echo       "<li><a href='http://googlepreview.com'>GooglePreview</a></li>";
-  echo     "</ul>";
-  echo   "</p>";
+  echo   "<p>This plugin makes use of:</p>";
+  echo   "<ul>";
+  echo     "<li><a href='http://mybloglog.com'>MyBlogLog avatars</a></li>";
+  echo     "<li><a href='http://gravatar.com'>Gravatar</a></li>";
+  echo     "<li><a href='http://googlepreview.com'>GooglePreview</a></li>";
+  echo   "</ul>";
   echo "</fieldset>"; // Help
 
   echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
@@ -533,7 +531,16 @@ function fetchAvatar($INemail = null, $INservice = null) {
   }
 }
 
-function MyAvatars($INemail = '', $INservice = '', $update_method = 'rules') {
+/**
+ * Main function which echo or returns an avatar
+ *
+ * @param string INemail Email of which to find an avatar from
+ * @param unknown_type $INservice Force a specific service to be used
+ * @param unknown_type $update_method Update by rules or always?
+ * @param boolean $echo if true then the avatar will be echo'ed, if false then it will be return'ed
+ * @return string String containing the avatar if $echo is false
+ */
+function MyAvatars($INemail = '', $INservice = '', $update_method = 'rules', $echo = true) {
   global $mbla, $comment, $authordata, $mbla_options;
 
 //  $update_method= 'always';
@@ -574,10 +581,20 @@ function MyAvatars($INemail = '', $INservice = '', $update_method = 'rules') {
                         );
 
   if ($INemail == '') {
-    echo $avatar;
+    if ($echo) {
+      echo $avatar;
+    } else {
+      return $avatar;
+    }
   }
 }
 
+/**
+ * Check if an md5id is an anonymous avatar
+ *
+ * @param string $INmd5 md5 value of an email
+ * @return boolean true if $INmd5 is an anonymous avatar
+ */
 function isAnon($INmd5) {
   global $mbla_options, $mbla;
   $anon = (@md5_file("{$mbla['filecache']}/{$INmd5}") == $mbla['anonymous_file_md5']);
@@ -625,6 +642,11 @@ if(!function_exists('curlGet')) {
 }
 
 if (!function_exists('checkVersion')) {
+  /**
+   * Check version of latest official release of this plugin
+   *
+   * @return string containing HTML styled version
+   */
   function checkVersion() {
     $latest  = "http://".strtr(basename($_GET['page'], '.php'), '_', '-').".googlecode.com/svn/trunk/{$_GET['page']}";
     $tmpfile = str_replace(array('<br />','&nbsp;'),
