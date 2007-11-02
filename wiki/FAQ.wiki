@@ -27,8 +27,8 @@ Yes, of course. There are no difference in how you set it up. Just make sure tha
 You are most likely refering to v0.29 and v0.29_debug_version and the reason is that the debug version shouldn't be used in a live environment. Both version are very identical except for the extra debug feature. For now you should only activate the debug version if you have any problems and then revert back to the regular version when done debugging.
 
 === How do I use the debug function ===
-First of all you need to make sure that you are using one of the debug version i.e. v0.29_debug_version. Then you have to navigate to the page you wish to debug and finally add �?debug=1� to the URL. If there already is a question mark in the URL, then add �&debug=1� instead.
+First of all you need to make sure that you are using one of the debug version i.e. v0.29_debug_version. Then you have to navigate to the page you wish to debug and finally add `debug=1` to the URL. If there already is a question mark in the URL, then add `&debug=1` instead.
 
-This should load the page in debug mode and place a file called �mbla_yyyymmdd_hhmmss.log� (where the yyyymmdd_hhmmss indicates a date and time stamp) in your MBLA cache directory.
+This should load the page in debug mode and place a file called `mbla_yyyymmdd_hhmmss.log` (where the yyyymmdd_hhmmss indicates a date and time stamp) in your MBLA cache directory.
 
 As you can imagine, then this WILL put some extra load time on the page, hence the reason that you should revert back to a regular release after debugging.
