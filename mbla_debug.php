@@ -3,7 +3,7 @@
 Plugin Name: MBLA
 Plugin URI: http://mbla.googlecode.com
 Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks.
-Version: 0.29_debug_version
+Version: 0.29debug_version
 Author: Jan Olsen
 Author URI: http://kamajole.dk
 */

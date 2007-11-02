@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: MBLA
-Plugin URI: http://code.google.com/p/mbla/
+Plugin URI: http://mbla.googlecode.com
 Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks.
 Version: 0.29
 Author: Jan Olsen
