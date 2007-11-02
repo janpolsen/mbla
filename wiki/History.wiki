@@ -73,3 +73,5 @@ http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added PapyGeek's sugg
 
 http://famfamfam.googlecode.com/svn/wiki/images/script_code.png Fixed a few things so the code is 100% html compliant
  
+ === 2007-11-02 - v0.29_debug_version ===
+http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added a debug feature so it's possible to get a readout with timestamps
