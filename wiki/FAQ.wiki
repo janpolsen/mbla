@@ -1,5 +1,4 @@
 #summary Frequently Asked Questions
-#labels Featured
 
 === Do I need to install a Gravatar plugin in order to use MBLA's Gravatar features? ===
 No, MBLA is a stand alone plugin, which doesn't require any additional plugins to run.

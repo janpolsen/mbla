@@ -2,115 +2,176 @@
 /*
 Plugin Name: MBLA
 Plugin URI: http://mbla.googlecode.com
-Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks.
-Version: 0.29
+Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks. Remember to change options at <a href="options-general.php?page=mbla/mbla.php">Options -&gt; MBLA</a>.
+Version: 0.36
 Author: Jan Olsen
 Author URI: http://kamajole.dk
 */
-add_action ('admin_menu', 'mbla_menu');
-$mbla_options = get_option('mbla_options');
-$mbla = array('services'            => array('mybloglog' => 'MyBlogLog',
-                                             'gravatar'  => 'Gravatar',
-                                             ),
-              'urlcache'            => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['cache_location']}",
-              'filecache'           => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']}",
-              'filecustom'          => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['custom']}",
-              'urlcustom'           => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['custom']}",
-              'anonymous_email'     => 'xxx@xxx.xxx',
-              );
-$mbla['anonymous_file_md5']  = md5_file($mbla['filecustom']);
-$mbla['anonymous_email_md5'] = md5($mbla['anonymous_email']);
+add_action( 'admin_menu' , 'mbla_menu' );
+$mbla_options = get_option( 'mbla_options' );
+$mbla = array( 
+    'services' => array( 
+        'mybloglog' => 'MyBlogLog', 
+        'gravatar' => 'Gravatar' ), 
+    'urlcache' => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['cache_location']}", 
+    'filecache' => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']}", 
+    'filecustom' => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['custom']}", 
+    'urlcustom' => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['custom']}", 
+    'anonymous_email' => '0x29@xxx.xxx' );
+$mbla [ 'anonymous_file_md5' ] = md5_file( $mbla [ 'filecustom' ] );
+$mbla [ 'anonymous_email_md5' ] = md5( $mbla [ 'anonymous_email' ] );
 
+if ( ! function_exists( 'file_put_contents' ) ) {
+    define( 'FILE_APPEND' , 1 );
 
-function mbla_menu() {
-//  global $mbla_options;
-  add_options_page('MBLA Options', 'MBLA', 9, __FILE__, 'mbla_manage_options');
+    /**
+     * Support for PHP4
+     * Write a string to a file
+     *
+     * @param unknown_type $n Full file name to write to
+     * @param unknown_type $d String to write
+     * @param unknown_type $flag Use FILE_APPEND for appending
+     * @return unknown
+     */
+    function file_put_contents( $n, $d, $flag = false ) {
+        $mode = ( $flag == FILE_APPEND || strtoupper( $flag ) == 'FILE_APPEND' ) ? 'a' : 'w';
+        $f = @fopen( $n , $mode );
+        if ( $f === false ) {
+            return 0;
+        } else {
+            if ( is_array( $d ) )
+                $d = implode( $d );
+            $bytes_written = fwrite( $f , $d );
+            fclose( $f );
+            return $bytes_written;
+        }
+    }
 }
 
-function mbla_message($text='Done', $type='updated') {
-  if (empty($type)) { $type = 'updated'; }
-  echo "<div id='message' class='{$type} fade'><p>{$text}</p></div>";
+if ( ! function_exists( 'logger' ) ) {
+    if ( $_GET [ 'debug' ] == $mbla_options [ 'debug_key' ] ) {
+        $logfile = "{$mbla['filecache']}/mbla_" . basename( $_SERVER [ 'SCRIPT_NAME' ] , '.php' ) . ".log";
+        $loglevel = 0;
+
+        /**
+         * helper function to do the actual logging to the default log file IF we are in debug mode
+         *
+         * @param string $str string to log
+         * @param int offset compared to previous offset
+         */
+        function logger( $str, $loglevel_offset = 0 ) {
+            global $mbla, $mbla_options, $logfile, $loglevel;
+            if ( $str ) {
+                list( $usec , $sec ) = explode( " " , microtime() );
+                if ( $loglevel_offset < 0 )
+                    $loglevel += $loglevel_offset;
+                file_put_contents( $logfile , sprintf( "%s%03s | %s %s\n" , date( "Y-m-d H:i:s." ) , floor( $usec * 1000 ) , str_repeat( '  ' , $loglevel ) , $str ) , FILE_APPEND );
+                if ( $loglevel_offset > 0 )
+                    $loglevel += $loglevel_offset;
+            }
+        }
+        file_put_contents( $logfile , '' );
+        logger( 'mbla[] = ' . var_export( $mbla , true ) );
+        logger( 'mbla_options[] = ' . var_export( $mbla_options , true ) );
+    } else {
+
+        /**
+         * dummy function for logger() when debug mode is deactivated
+         *
+         * @param string $dummy1 void
+         * @param int $dummy2 void
+         * @return boolean false
+         */
+        function logger( $dummy1 = '', $dummy2 = 0 ) {
+            return false;
+        }
+    }
+}
+
+function mbla_menu() {
+    add_options_page( 'MBLA Options' , 'MBLA' , 9 , __FILE__ , 'mbla_manage_options' );
+}
+
+function mbla_message( $text = 'Done', $type = 'updated' ) {
+    if ( empty( $type ) ) {
+        $type = 'updated';
+    }
+    echo "<div id='message' class='{$type} fade'><p>{$text}</p></div>";
 }
 
 function mbla_manage_options() {
-  global $wpdb, $mbla_options;
-
-  if (! function_exists('curl_init')) {
-    echo "<div class='wrap'>";
-    echo   "<div style='color: red;'>This plugin only works with <a href='http://php.net/curl' target='_blank'>curl</a> activated in PHP</div>";
-    echo "</div>";
-    include (ABSPATH . 'wp-admin/admin-footer.php');
-    die();
-  }
-
-  if ( isset($_GET['showcachecontent']) ) {
-    mbla_show_cache_content();
-  } else {
-    if ( isset($_POST['default']) ) {
-      // reset to default values
-      mbla_message("MBLA options restored to default values");
-      mbla_default_options('default');
-    } elseif ( isset($_POST['submit']) ) {
-      // update values
-      mbla_message("MBLA Options Updated");
-      mbla_default_options('update', $_POST);
-    } else {
-      mbla_default_options();
+    global $wpdb, $mbla_options;
+    
+    if ( ! function_exists( 'curl_init' ) ) {
+        echo "<div class='wrap'>";
+        echo "<div style='color: red;'>This plugin only works with <a href='http://php.net/curl' target='_blank'>curl</a> activated in PHP</div>";
+        echo "</div>";
+        include ( ABSPATH . 'wp-admin/admin-footer.php' );
+        die();
     }
-    $mbla_options = get_option('mbla_options');
-  }
+    
+    if ( isset( $_GET [ 'showcachecontent' ] ) ) {
+        mbla_show_cache_content();
+    } else {
+        if ( isset( $_POST [ 'default' ] ) ) {
+            // reset to default values            mbla_message( "MBLA options restored to default values" );
+            mbla_default_options( 'default' );
+        } elseif ( isset( $_POST [ 'submit' ] ) ) {
+            // update values            mbla_message( "MBLA Options Updated" );
+            mbla_default_options( 'update' , $_POST );
+        } else {
+            mbla_default_options();
+        }
+        $mbla_options = get_option( 'mbla_options' );
+    }
 }
 
-function mbla_default_options($action = '', $inarr = array()) {
-  global $wpdb, $mbla_options, $mbla;
-//  $admin_email     = get_settings('admin_email');
-//  $admin_email_md5 = md5($admin_email);
-
-  if ( 'default' == $action ) {
-    $mbla_options = array('cache_days'          => 3,
-                          'anonymous_service'   => implode('', array_keys(array_slice($mbla['services'], 0, 1))),
-                          'prival'              => implode(',',array_keys($mbla['services'])).',custom,none'
-                         );
-    update_option('mbla_options', $mbla_options);
-  } elseif ('update' == $action) {
-    $mbla_options = $_POST;
-
-    // make sure we have our anonymous avatars
-    // we need to do this here, so we can catch our md5 values of the anonymous avatars and save them at the same time
-    if ($mbla_options['cache_location']) {
-      // first grap the admins avatar
-      foreach (array_reverse(explode(',', $mbla_options['prival'])) AS $tabid) {
-        $service = str_replace('_anon', '', $tabid);
-        if (strpos($tabid, '_anon')) {
-          $md5 = fetchAvatar($mbla['anonymous_email'], $service);
-          $mbla_options['md5_anon'][str_replace('_anon', '', $tabid)] = $md5['file'];
+function mbla_default_options( $action = '', $inarr = array() ) {
+    global $wpdb, $mbla_options, $mbla;
+    
+    if ( $action == 'default' ) {
+        $mbla_options = array( 
+            'cache_days' => 3, 
+            'debug_key' => 'seeecret', 
+            'gravatar_rating' => 'X', 
+            'anonymous_service' => implode( '' , array_keys( array_slice( $mbla [ 'services' ] , 0 , 1 ) ) ), 
+            'prival' => implode( ',' , array_keys( $mbla [ 'services' ] ) ) . ',custom,none' );
+        update_option( 'mbla_options' , $mbla_options );
+    } elseif ( $action == 'update' ) {
+        $mbla_options = $_POST;
+        
+        // make sure we have our anonymous avatars        // we need to do this here, so we can catch our md5 values of the anonymous avatars and save them at the same time        if ( $mbla_options [ 'cache_location' ] ) {
+            // first grap the admins avatar            foreach ( array_reverse( explode( ',' , $mbla_options [ 'prival' ] ) ) as $tabid ) {
+                $service = str_replace( '_anon' , '' , $tabid );
+                if ( strpos( $tabid , '_anon' ) ) {
+                    $md5 = fetchAvatar( $mbla [ 'anonymous_email' ] , $service );
+                    $mbla_options [ 'md5_anon' ] [ str_replace( '_anon' , '' , $tabid ) ] = $md5 [ 'md5_file' ];
+                }
+            }
         }
-      }
+        
+        update_option( 'mbla_options' , $mbla_options );
     }
-
-    update_option('mbla_options', $mbla_options);
-  }
-
-  $info = "The following keywords will be replaced (case sensitive):<br/>";
-  $arr_keywords = array('URL'        => 'the URL from the commenter',
-                        'NAME'       => 'the name of the commenter',
-                        'MD5'        => 'the MD5(email) of the commenter',
-                        'TITLE'      => 'the title of the post',
-                        'AVATAR'     => 'the avatar of the commenter',
-                       );
-  $info .= "<table border='0' cellpadding='1' cellspacing='0'>";
-  foreach ($arr_keywords AS $_keyword => $_title) {
-    $info .= "<tr><td><tt>{{$_keyword}}</tt></td><td>{$_title}</td></tr>";
-  }
-  $info   .= "<tr><td colspan='2'>Sample usage:<pre>".
-             "&lt;div style=&quot;float: left;&quot;&gt;
+    
+    logger( "\$mbla_options[]: " . var_export( $mbla_options , true ) );
+    $info = "The following keywords will be replaced (case sensitive):<br/>";
+    $arr_keywords = array( 
+        'URL' => 'the URL from the commenter', 
+        'NAME' => 'the name of the commenter', 
+        'MD5' => 'the MD5(email) of the commenter', 
+        'TITLE' => 'the title of the post', 
+        'AVATAR' => 'the avatar of the commenter' );
+    $info .= "<table border='0' cellpadding='1' cellspacing='0'>";
+    foreach ( $arr_keywords as $_keyword => $_title ) {
+        $info .= "<tr><td><tt>{{$_keyword}}</tt></td><td>{$_title}</td></tr>";
+    }
+    $info .= "<tr><td colspan='2'>Sample usage:<pre>" . "&lt;div style=&quot;float: left;&quot;&gt;
   &lt;a href=&quot;{URL}&quot; title=&quot;Visit {NAME}'s site&quot;&gt;
     &lt;img src=&quot;{AVATAR}&quot; alt=&quot;{NAME} commenting on {TITLE}&quot; style=&quot;height: 32px&quot; /&gt;
   &lt;/a&gt;
-&lt;/div&gt;".
-             "</pre></td></tr>";
-  $info .= "</table>";
-?>
+&lt;/div&gt;" . "</pre></td></tr>";
+    $info .= "</table>";
+    ?>
 <script type="text/javascript">
 function displayTab(obj) {
   var tabs = document.getElementsByTagName('fieldset');
@@ -148,519 +209,620 @@ function switchPri(box1, box2) {
 </script>
 
 <?php
-  echo "<div class='wrap'>";
-
-  echo   "<div style='float: right;'>".checkVersion()."</div>";
-  echo "<h2>MBLA Options</h2>";
-
-  if (is_writeable($mbla['filecache'])) {
-    $tabcnt = 0;
-    foreach (array('general' => 'General',
-                   'html'    => 'HTML',
-                   'help'    => 'Help',
-                   ) AS $tabid => $tabtitle) {
-      echo "<input type='button' class='button' value='{$tabtitle} &raquo;' onclick=\"displayTab({$tabcnt});\" />";
-      $tabcnt++;
+    echo "<div class='wrap'>";
+    
+    //    echo "<div style='float: right;'>" . checkVersion() . "</div>" ;    echo "<h2>MBLA Options</h2>";
+    
+    if ( is_writeable( $mbla [ 'filecache' ] ) ) {
+        $tabcnt = 0;
+        foreach ( array( 
+            'general' => 'General', 
+            'html' => 'HTML', 
+            'help' => 'Help' ) as $tabid => $tabtitle ) {
+            echo "<input type='button' class='button' value='{$tabtitle} &raquo;' onclick=\"displayTab({$tabcnt});\" />";
+            $tabcnt++;
+        }
     }
-  }
-  echo "<br/>";
-
-  echo "<form method='post' action='{$PHP_SELF}'>";
-
-  echo "<fieldset>";
-
-  echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
-
-  echo "<tr>";
-  echo   "<td>";
-  echo     "Avatar cache location<br/>";
-  echo     "<em>relative to document root</em>";
-  echo   "</td>";
-  echo   "<td colspan='2'>";
-  echo     "<tt style='font-size: 10px;'>{$_SERVER['DOCUMENT_ROOT']}</tt>";
-  echo     "<input type='text' name='cache_location' value='{$mbla_options['cache_location']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
-  if ($mbla_options['cache_location'] && !is_writeable("{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']}")) {
-    echo "<br/><i style='color: red;'>{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']} isn't writeable! (".substr(sprintf('%o', @fileperms($mbla['filecache'])), -4).")</i>";
-  }
-  echo   "</td>";
-  echo "</tr>";
-
-  echo "<tr>";
-  echo   "<td valign='top' >";
-  echo     "Custom avatar file<br/>";
-  echo     "<em>relative to document root</em>";
-  echo   "</td>";
-  echo   "<td valign='top' colspan='2'>";
-  echo     "<tt style='font-size: 10px;'>{$_SERVER['DOCUMENT_ROOT']}</tt>";
-  echo     "<input type='text' name='custom' value='{$mbla_options['custom']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
-  if ($mbla_options['custom'] && !file_exists("{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['custom']}")) {
-    echo  "<br/><i style='color: red;'>The custom avatar file doesn't exist!</i>";
-  }
-  echo   "</td>";
-  echo "</tr>";
-
-  echo "<tr>";
-  echo   "<td valign='top' style='width: 300px'>";
-  echo     "Avatar Fetch Cycle:<br/><i>Use &and; and &or; to change the order of the boxes. Place the 'None' box where you want the script to stop looking for other avatars.</i>";
-  echo   "</td>";
-  echo   "<td valign='top' >";
-  $avail_services = array();
-  foreach ($mbla['services'] AS $tabid => $tabtitle) {
-    $avail_services[$tabid] = $tabtitle;
-    $avail_services[$tabid.'_anon'] = $tabtitle.'\'s Anonymous Avatar';
-  }
-  if ($mbla_options['custom']) {
-    $avail_services['custom'] = 'Custom Avatar';
-  }
-  $avail_services['none'] ='None';
-  $choosen_services = explode(',', $mbla_options['prival']);
-  $choosenplus_services = array_merge(array_intersect($choosen_services, array_keys($avail_services)), array_diff(array_keys($avail_services), $choosen_services));
-  $invalid = $tabcnt = 0; $first  = true;
-  echo           "<table id='pri' cellpadding='3' cellspacing='1' style='width: 150px; border: 0'>";
-  foreach ($choosenplus_services AS $tabid) {
-    if ($avail_services[$tabid]) {
-      echo           "<tr>";
-      echo             "<td id='pri{$tabcnt}' style='border: 1px solid #cccc99; background-color: #ffffcc; white-space: nowrap; text-align: center;'>";
-      echo               "&nbsp;";
-      echo               "{$avail_services[$tabid]}&nbsp;";
-      echo               "<input type='hidden' id='prival{$tabcnt}' value='{$tabid}' />";
-      echo             "</td>";
-      if ($first) {
-        echo           "<td>&nbsp;</td>";
-      } else {
-        echo           "<td style='cursor: pointer;' onclick=\"switchPri('pri{$tabcnt}', 'pri".($tabcnt-1)."');\"> &and; </td>";
-      }
-      if ($tabcnt < count($choosenplus_services) - 1 - $invalid) {
-        echo           "<td style='cursor: pointer;' onclick=\"switchPri('pri{$tabcnt}', 'pri".($tabcnt+1)."');\"> &or; </td>";
-      } else {
-        echo           "<td>&nbsp;</td>";
-      }
-      echo           "</tr>";
-      $first = false;
-      $tabcnt++;
-    } else {
-      $invalid++;
+    echo "<br/>";
+    
+    echo "<form method='post' action='{$PHP_SELF}'>";
+    
+    echo "<fieldset>";
+    
+    echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
+    
+    echo "<tr>";
+    echo "<td>";
+    echo "Avatar cache location<br/>";
+    echo "<em>relative to document root</em>";
+    echo "</td>";
+    echo "<td colspan='2'>";
+    echo "<tt style='font-size: 10px;'>{$_SERVER['DOCUMENT_ROOT']}</tt>";
+    echo "<input type='text' name='cache_location' value='{$mbla_options['cache_location']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
+    if ( $mbla_options [ 'cache_location' ] && ! is_writeable( "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']}" ) ) {
+        echo "<br/><i style='color: red;'>{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']} isn't writeable! (" . substr( sprintf( '%o' , @fileperms( $mbla [ 'filecache' ] ) ) , - 4 ) . ")</i>";
     }
-  }
-  echo     "</table>";
-  echo     "<input type='hidden' size='80' name='prival' id='prival' value='".implode(',',$choosenplus_services)."' />";
-  echo   "</td>";
-  echo   "<td>&nbsp;</td>";
-  echo "</tr>";
+    echo "</td>";
+    echo "</tr>";
+    
+    echo "<tr>";
+    echo "<td valign='top' >";
+    echo "Custom avatar file<br/>";
+    echo "<em>relative to document root</em>";
+    echo "</td>";
+    echo "<td valign='top' colspan='2'>";
+    echo "<tt style='font-size: 10px;'>{$_SERVER['DOCUMENT_ROOT']}</tt>";
+    echo "<input type='text' name='custom' value='{$mbla_options['custom']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
+    if ( $mbla_options [ 'custom' ] && ! file_exists( "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['custom']}" ) ) {
+        echo "<br/><i style='color: red;'>The custom avatar file doesn't exist!</i>";
+    }
+    echo "</td>";
+    echo "</tr>";
+    
+    echo "<tr>";
+    echo "<td valign='top' style='width: 300px'>";
+    echo "Avatar Fetch Cycle:<br/><i>Use &and; and &or; to change the order of the boxes. Place the 'None' box where you want the script to stop looking for other avatars.</i>";
+    echo "</td>";
+    echo "<td valign='top' >";
+    $avail_services = array( );
+    foreach ( $mbla [ 'services' ] as $tabid => $tabtitle ) {
+        $avail_services [ $tabid ] = $tabtitle;
+        $avail_services [ $tabid . '_anon' ] = $tabtitle . '\'s Anonymous Avatar';
+    }
+    if ( $mbla_options [ 'custom' ] ) {
+        $avail_services [ 'custom' ] = 'Custom Avatar';
+    }
+    $avail_services [ 'none' ] = 'None';
+    $choosen_services = explode( ',' , $mbla_options [ 'prival' ] );
+    $choosenplus_services = array_merge( array_intersect( $choosen_services , array_keys( $avail_services ) ) , array_diff( array_keys( $avail_services ) , $choosen_services ) );
+    $invalid = $tabcnt = 0;
+    $first = true;
+    echo "<table id='pri' cellpadding='3' cellspacing='1' style='width: 150px; border: 0'>";
+    foreach ( $choosenplus_services as $tabid ) {
+        if ( $avail_services [ $tabid ] ) {
+            echo "<tr>";
+            echo "<td id='pri{$tabcnt}' style='border: 1px solid #cccc99; background-color: #ffffcc; white-space: nowrap; text-align: center;'>";
+            echo "&nbsp;";
+            echo "{$avail_services[$tabid]}&nbsp;";
+            echo "<input type='hidden' id='prival{$tabcnt}' value='{$tabid}' />";
+            echo "</td>";
+            if ( $first ) {
+                echo "<td>&nbsp;</td>";
+            } else {
+                echo "<td style='cursor: pointer;' onclick=\"switchPri('pri{$tabcnt}', 'pri" . ( $tabcnt - 1 ) . "');\"> &and; </td>";
+            }
+            if ( $tabcnt < count( $choosenplus_services ) - 1 - $invalid ) {
+                echo "<td style='cursor: pointer;' onclick=\"switchPri('pri{$tabcnt}', 'pri" . ( $tabcnt + 1 ) . "');\"> &or; </td>";
+            } else {
+                echo "<td>&nbsp;</td>";
+            }
+            echo "</tr>";
+            $first = false;
+            $tabcnt++;
+        } else {
+            $invalid++;
+        }
+    }
+    echo "</table>";
+    echo "<input type='hidden' size='80' name='prival' id='prival' value='" . implode( ',' , $choosenplus_services ) . "' />";
+    echo "</td>";
+    echo "<td>&nbsp;</td>";
+    echo "</tr>";
+    
+    echo "<tr>";
+    echo "<td>";
+    echo "Check for updated avatar after <em>x</em> day(s)";
+    echo "</td>";
+    echo "<td>";
+    echo "<select name='cache_days' style='width: 50px;'>";
+    foreach ( array( 
+        1, 
+        2, 
+        3, 
+        4, 
+        5, 
+        6, 
+        7 ) as $i ) {
+        echo "<option value='{$i}' " . ( $i == $mbla_options [ 'cache_days' ] ? "selected='selected'" : '' ) . ">{$i}</option>";
+    }
+    echo "</select>days";
+    echo " (<a href='{$_SERVER['REQUEST_URI']}&amp;showcachecontent'>show current content of cache</a>)";
+    echo "</td>";
+    echo "<td>&nbsp;</td>";
+    echo "</tr>";
+    
+    echo "<tr>";
+    echo "<td>";
+    echo "Gravatar rating";
+    echo "</td>";
+    echo "<td>";
+    echo "<select name='gravatar_rating' style='width: 50px;'>";
+    foreach ( array( 
+        'G', 
+        'PG', 
+        'R', 
+        'X' ) as $i ) {
+        echo "<option value='{$i}' " . ( $i == $mbla_options [ 'gravatar_rating' ] ? "selected='selected'" : '' ) . ">{$i}</option>";
+    }
+    echo "</select>";
+    echo "</td>";
+    echo "<td>&nbsp;</td>";
+    echo "</tr>";
+    
+    echo "<tr>";
+    echo "<td>";
+    echo "Secret debug key<br/>";
+    echo "<em>used to enable debug mode by adding <tt>?debug=xxx</tt> or <tt>&amp;debug=xxx</tt> to the URL where <tt>xxx</tt> is the secret debug key</em>";
+    echo "</td>";
+    echo "<td colspan='2' valign='top'>";
+    echo "<input type='text' name='debug_key' value='{$mbla_options['debug_key']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
+    echo "</td>";
+    echo "</tr>";
+    
+    echo "</table>";
+    
+    foreach ( $mbla [ 'services' ] as $tabid => $tabtitle ) {
+        echo "<input type='hidden' name='md5_anon[{$tabid}]' value='" . $mbla_options [ 'md5_anon' ] [ $tabid ] . "' /><br/>";
+    }
+    echo "</fieldset>"; // General    
 
-  echo "<tr>";
-  echo   "<td>";
-  echo     "Check for updated avatar after <em>x</em> day(s)";
-  echo   "</td>";
-  echo   "<td>";
-  echo     "<select name='cache_days' style='width: 50px;'>";
-  foreach (array(1,2,3,4,5,6,7) AS $i) echo "<option value='{$i}' ".($i == $mbla_options['cache_days'] ? "selected='selected'" : '').">{$i}</option>";
-  echo     "</select>days";
-  echo     " (<a href='{$_SERVER['REQUEST_URI']}&amp;showcachecontent'>show current content of cache</a>)";
-  echo   "</td>";
-  echo   "<td>&nbsp;</td>";
-  echo "</tr>";
-  echo "</table>";
+    echo "<fieldset style='display: none;'>";
+    echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
+    echo "<tr>";
+    echo "<td valign='bottom'>HTML code for </td>";
+    echo "<td><i>See available keywords at the bottom this page</i></td>";
+    echo "</tr>";
+    
+    foreach ( array( 
+        'post' => 'posts', 
+        'comment' => 'comments', 
+        'comment_anon' => 'comments (anonymous)', 
+        'pingback' => 'pingbacks', 
+        'none' => 'No avatar available' ) as $typid => $typtitle ) {
+        echo "<tr>";
+        echo "<td valign='top' style='white-space: nowrap;'><b>" . ucfirst( $typtitle ) . "</b></td>";
+        echo "<td width='100%'>";
+        echo "<textarea name='final_html_{$typid}' rows='5' cols='80' style='font-family: monospace; font-size: 10px;'>";
+        echo htmlentities( stripslashes( $mbla_options [ "final_html_{$typid}" ] ) );
+        echo "</textarea>";
+        echo "</td>";
+        echo "</tr>";
+    }
+    echo "<tr>";
+    echo "<td>&nbsp;</td>";
+    echo "<td>{$info}</td>";
+    echo "</tr>";
+    
+    echo "</table>";
+    echo "</fieldset>"; // HTML    
 
-  foreach ($mbla['services'] AS $tabid => $tabtitle) {
-    echo  "<input type='hidden' name='md5_anon[{$tabid}]' value='".$mbla_options['md5_anon'][$tabid]."' /><br/>";
-  }
-  echo "</fieldset>"; // General
+    echo "<fieldset style='display: none;'>";
+    echo "<p>This <a href='http://wordpress.org'>Wordpress</a> plugin is hosted at <a href='http://code.google.com/p/mbla/'>Google Code</a>, which means that everything about <a href='http://code.google.com/p/mbla/downloads/list'>download</a>, <a href='http://code.google.com/p/mbla/wiki/Installation'>installation</a>, <a href='http://code.google.com/p/mbla/issues/list'>issues</a> and <a href='http://code.google.com/p/mbla/wiki/Help'>help</a> can be found there.</p>";
+    echo "<p>This plugin makes use of:</p>";
+    echo "<ul>";
+    echo "<li><a href='http://mybloglog.com'>MyBlogLog avatars</a></li>";
+    echo "<li><a href='http://gravatar.com'>Gravatar</a></li>";
+    echo "<li><a href='http://googlepreview.com'>GooglePreview</a></li>";
+    echo "</ul>";
+    echo "</fieldset>"; // Help    
 
-
-  echo "<fieldset style='display: none;'>";
-  echo   "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
-  echo     "<tr>";
-  echo       "<td valign='bottom'>HTML code for </td>";
-  echo       "<td><i>See available keywords at the bottom this page</i></td>";
-  echo     "</tr>";
-
-  foreach (array('post'         => 'posts',
-                 'comment'      => 'comments',
-                 'comment_anon' => 'comments (anonymous)',
-                 'pingback'     => 'pingbacks',
-                 'none'         => 'No avatar available') AS $typid => $typtitle) {
-    echo   "<tr>";
-    echo     "<td valign='top' style='white-space: nowrap;'><b>".ucfirst($typtitle)."</b></td>";
-    echo     "<td width='100%'>";
-    echo        "<textarea name='final_html_{$typid}' rows='5' cols='80' style='font-family: monospace; font-size: 10px;'>";
-    echo          htmlentities(stripslashes($mbla_options["final_html_{$typid}"]));
-    echo        "</textarea>";
-    echo     "</td>";
-    echo   "</tr>";
-  }
-  echo     "<tr>";
-  echo       "<td>&nbsp;</td>";
-  echo       "<td>{$info}</td>";
-  echo     "</tr>";
-
-  echo   "</table>";
-  echo "</fieldset>"; // HTML
-
-  echo "<fieldset style='display: none;'>";
-  echo   "<p>This <a href='http://wordpress.org'>Wordpress</a> plugin is hosted at <a href='http://code.google.com/p/mbla/'>Google Code</a>, which means that everything about <a href='http://code.google.com/p/mbla/downloads/list'>download</a>, <a href='http://code.google.com/p/mbla/wiki/Installation'>installation</a>, <a href='http://code.google.com/p/mbla/issues/list'>issues</a> and <a href='http://code.google.com/p/mbla/wiki/Help'>help</a> can be found there.</p>";
-  echo   "<p>This plugin makes use of:</p>";
-  echo   "<ul>";
-  echo     "<li><a href='http://mybloglog.com'>MyBlogLog avatars</a></li>";
-  echo     "<li><a href='http://gravatar.com'>Gravatar</a></li>";
-  echo     "<li><a href='http://googlepreview.com'>GooglePreview</a></li>";
-  echo   "</ul>";
-  echo "</fieldset>"; // Help
-
-  echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
-  echo "<tr>";
-  echo   "<td align='left'>";
-  echo     "<input type='submit' name='submit'  style='background-color: #ccffcc;' value=' Update values ' />";
-  echo   "</td>";
-  echo   "<td align='right' colspan='2'>";
-  echo     "<input type='submit' name='default' style='background-color: #ffcccc;' value=' Reset to default values ' />";
-  echo   "</td>";
-  echo "</tr>";
-  echo "</table>";
-
-  echo "</form>";
-
-  echo "</div>";
-  include (ABSPATH . 'wp-admin/admin-footer.php');
-  die;
+    echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
+    echo "<tr>";
+    echo "<td align='left'>";
+    echo "<input type='submit' name='submit'  style='background-color: #ccffcc;' value=' Update values ' />";
+    echo "</td>";
+    echo "<td align='right' colspan='2'>";
+    echo "<input type='submit' name='default' style='background-color: #ffcccc;' value=' Reset to default values ' />";
+    echo "</td>";
+    echo "</tr>";
+    echo "</table>";
+    
+    echo "</form>";
+    
+    echo "</div>";
+    include ( ABSPATH . 'wp-admin/admin-footer.php' );
+    die();
 }
 
 function mbla_show_cache_content() {
-  global $mbla, $mbla_options;
-
-  echo "<div class='wrap'>";
-
-  echo "<form method='post' action='{$PHP_SELF}'>";
-
-  echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
-  echo "<tr>";
-  echo   "<td colspan='9'><h2>MBLA Cache Content</h2></td>";
-  echo "</tr>";
-
-  if (!file_exists($mbla['filecache'])) {
+    global $mbla, $mbla_options;
+    
+    echo "<div class='wrap'>";
+    
+    echo "<form method='post' action='{$PHP_SELF}'>";
+    
+    echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
     echo "<tr>";
-    echo   "<td colspan='9'>Can't find avatar cache location at:</td>";
+    echo "<td colspan='9'><h2>MBLA Cache Content</h2></td>";
     echo "</tr>";
-    echo "<tr>";
-    echo   "<td colspan='9'><tt>{$mbla['filecache']}</tt></td>";
-    echo "</tr>";
-    echo "<tr>";
-    echo   "<td colspan='9'>Please correct that problem under Options -> MBLA</td>";
-    echo "</tr>";
-  } else {
-    parse_str($_SERVER['QUERY_STRING'], $url);
-    if ( isset($_GET['delete']) ) {
-      switch ($_GET['delete']) {
-        case 'all':  foreach (glob($mbla['filecache']."/*") as $filename) {
-                       @unlink($filename);
-                       unset($url['delete']);
-                     }
-                     break;
-
-        case 'anon': foreach (glob($mbla['filecache']."/*") as $filename) {
-                       foreach ($mbla['services'] AS $tabid => $tabtitle) {
-
-                         if (file_exists($filename) && in_array(md5_file($filename), $mbla_options['md5_anon'])) {
-                           unlink($filename);
-                         }
-                       }
-                       unset($url['delete']);
-                     }
-                     break;
-
-         default   : @unlink($mbla['filecache'] .'/'.$_GET['delete']);
-                     break;
-      }
-      unset($url['delete']);
-    }
-    $cache = glob($mbla['filecache'].'/*');
-    $url = str_replace('&', '&amp;', http_build_query($url));
-    echo "<tr>";
-    echo   "<td colspan='9'>Content of <tt><a href='{$PHP_SELF}?{$url}'>{$mbla['filecache']}</a></tt> (click to reload)</td>";
-    echo "</tr>";
-    if ($cache) {
-      echo "<tr>";
-      echo   "<th>&nbsp;</th>";
-      echo   "<th style='background-color: #eee; text-align: center;' colspan='4'>Avatar</th>";
-      echo "</tr>";
-      echo "<tr>";
-      echo   "<th style='text-align: left;'>File name - <tt>md5(email)</tt></th>";
-      echo   "<th style='background-color: #eee; text-align: right;'>Size</th>";
-      echo   "<th style='background-color: #eee; text-align: center;'>Avatar</th>";
-      echo   "<th style='background-color: #eee; text-align: center;'>Date</th>";
-      echo   "<th style='background-color: #eee;'>&nbsp;</th>";
-      echo "</tr>";
-      $counter = $size = 0;
-      $files = array();
-      foreach ($cache as $fullfilename) {
-        $fsize = filesize($fullfilename);
-        if ($fsize <= 256) {
-          unlink($fullfilename);
-        } else {
-          $basefilename = basename($fullfilename);
-          echo "<tr>";
-          echo   "<td style='text-align: left;'><tt>{$basefilename}</tt></td>";
-          echo   "<td style='background-color: #eee; text-align: right;'>{$fsize}</td>";
-          echo   "<td style='background-color: #eee; text-align: center;'><img class='{$mbla_options['regular_class']}' style='{$mbla_options['regular_style']}; height: 32px; width: 32px;' src='"."{$mbla['urlcache']}/{$basefilename}' alt='{$basefilename}' /></td>";
-          echo   "<td style='background-color: #eee; text-align: center; white-space: nowrap;'>".date('Y-m-d H:i:s', filemtime($fullfilename))."</td>";
-          echo   "<td style='background-color: #eee; text-align: center;'><a href='{$PHP_SELF}?{$url}&amp;delete={$basefilename}'>Delete</a></td>";
-          echo "</tr>";
-          $counter++;
-          $size += $fsize;
+    
+    if ( ! file_exists( $mbla [ 'filecache' ] ) ) {
+        echo "<tr>";
+        echo "<td colspan='9'>Can't find avatar cache location at:</td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<td colspan='9'><tt>{$mbla['filecache']}</tt></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<td colspan='9'>Please correct that problem under Options -> MBLA</td>";
+        echo "</tr>";
+    } else {
+        parse_str( $_SERVER [ 'QUERY_STRING' ] , $url );
+        if ( isset( $_GET [ 'delete' ] ) ) {
+            switch ( $_GET [ 'delete' ] ) {
+                case 'all' :
+                    foreach ( glob( $mbla [ 'filecache' ] . "/*" ) as $filename ) {
+                        @unlink( $filename );
+                        unset( $url [ 'delete' ] );
+                    }
+                    break;
+                
+                case 'anon' :
+                    foreach ( glob( $mbla [ 'filecache' ] . "/*" ) as $filename ) {
+                        foreach ( $mbla [ 'services' ] as $tabid => $tabtitle ) {
+                            
+                            if ( file_exists( $filename ) && in_array( md5_file( $filename ) , $mbla_options [ 'md5_anon' ] ) ) {
+                                unlink( $filename );
+                            }
+                        }
+                        unset( $url [ 'delete' ] );
+                    }
+                    break;
+                
+                default :
+                    @unlink( $mbla [ 'filecache' ] . '/' . $_GET [ 'delete' ] );
+                    break;
+            }
+            unset( $url [ 'delete' ] );
         }
-      }
-      echo "<tr>";
-      echo   "<th style='text-align: left;'>Total cache size</th>";
-      echo   "<th style='background-color: #eee; text-align: right;'>{$size}</th>";
-      echo   "<th style='background-color: #eee;' colspan='3'>&nbsp;</th>";
-      echo "</tr>";
+        $cache = glob( $mbla [ 'filecache' ] . '/*' );
+        $url = str_replace( '&' , '&amp;' , http_build_query( $url ) );
+        echo "<tr>";
+        echo "<td colspan='9'>Content of <tt><a href='{$PHP_SELF}?{$url}'>{$mbla['filecache']}</a></tt> (click to reload)</td>";
+        echo "</tr>";
+        if ( $cache ) {
+            echo "<tr>";
+            echo "<th>&nbsp;</th>";
+            echo "<th style='background-color: #eee; text-align: center;' colspan='4'>Avatar</th>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<th style='text-align: left;'>File name - <tt>md5(email)</tt></th>";
+            echo "<th style='background-color: #eee; text-align: right;'>Size</th>";
+            echo "<th style='background-color: #eee; text-align: center;'>Avatar</th>";
+            echo "<th style='background-color: #eee; text-align: center;'>Date</th>";
+            echo "<th style='background-color: #eee;'>&nbsp;</th>";
+            echo "</tr>";
+            $counter = $size = 0;
+            $files = array( );
+            foreach ( $cache as $fullfilename ) {
+                $fsize = filesize( $fullfilename );
+                if ( $fsize <= 256 ) {
+                    unlink( $fullfilename );
+                } else {
+                    $basefilename = basename( $fullfilename );
+                    echo "<tr>";
+                    echo "<td style='text-align: left;'>";
+                    echo "<tt>";
+                    if ( 'log' == substr( $basefilename , - 3 ) ) {
+                        echo "<a href='{$mbla['urlcache']}/{$basefilename}'>{$basefilename}</a>";
+                    } else {
+                        echo $basefilename;
+                    }
+                    echo "</tt>";
+                    echo "</td>";
+                    echo "<td style='background-color: #eee; text-align: right;'>{$fsize}</td>";
+                    echo "<td style='background-color: #eee; text-align: center;'>";
+                    if ( 'log' == substr( $basefilename , - 3 ) ) {
+                        echo "<a href='{$mbla['urlcache']}/{$basefilename}'>log file</a>";
+                    } else {
+                        echo "<img class='{$mbla_options['regular_class']}' style='{$mbla_options['regular_style']}; height: 32px; width: 32px;' src='{$mbla['urlcache']}/{$basefilename}' alt='{$basefilename}' />";
+                    }
+                    echo "</td>";
+                    echo "<td style='background-color: #eee; text-align: center; white-space: nowrap;'>" . date( 'Y-m-d H:i:s' , filemtime( $fullfilename ) ) . "</td>";
+                    echo "<td style='background-color: #eee; text-align: center;'><a href='{$PHP_SELF}?{$url}&amp;delete={$basefilename}'>Delete</a></td>";
+                    echo "</tr>";
+                    $counter++;
+                    $size += $fsize;
+                }
+            }
+            echo "<tr>";
+            echo "<th style='text-align: left;'>Total cache size</th>";
+            echo "<th style='background-color: #eee; text-align: right;'>{$size}</th>";
+            echo "<th style='background-color: #eee;' colspan='3'>&nbsp;</th>";
+            echo "</tr>";
+            
+            echo "<tr>";
+            echo "<td>&nbsp;</td>";
+            echo "<td colspan='4' style='text-align: center;'><a href='{$PHP_SELF}?{$url}&amp;delete=anon'>Delete all anonymous avatars</a></td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td>&nbsp;</td>";
+            echo "<td colspan='4' style='text-align: center;'><a href='{$PHP_SELF}?{$url}&amp;delete=all'>Delete all avatars</a></td>";
+            echo "</tr>";
+        } else {
+            echo "<tr>";
+            echo "<td colspan='5'>The avatar cache is empty. <a href='{$PHP_SELF}?{$url}'>Reload cache</a></td>";
+            echo "</tr>";
+        }
+    }
+    echo "</table>";
+    
+    echo "</form>";
+    
+    echo "</div>";
+    include ( ABSPATH . 'wp-admin/admin-footer.php' );
+    die();
+}
 
-      echo "<tr>";
-      echo   "<td>&nbsp;</td>";
-      echo   "<td colspan='4' style='text-align: center;'><a href='{$PHP_SELF}?{$url}&amp;delete=anon'>Delete all anonymous avatars</a></td>";
-      echo "</tr>";
-      echo "<tr>";
-      echo   "<td>&nbsp;</td>";
-      echo   "<td colspan='4' style='text-align: center;'><a href='{$PHP_SELF}?{$url}&amp;delete=all'>Delete all avatars</a></td>";
-      echo "</tr>";
+function identifier2URL( $service, $identifier, $md5_name ) {
+    logger( "identifier2URL({$service}, {$identifier}, {$md5_name}) {" , + 1 );
+    global $mbla, $mbla_options;
+    if ( strpos( $identifier , '@' ) ) {
+        switch ( strtolower( $service ) ) {
+            case 'gravatar' :
+                $ret = "http://www.gravatar.com/avatar.php?gravatar_id={$md5_name}&rating={$mbla['gravatar_rating']}";
+                break;
+            
+            case 'mybloglog' :
+                $ret = "http://pub.mybloglog.com/coiserv.php?href=mailto:{$identifier}";
+                break;
+            
+            case 'custom' :
+                $ret = "{$mbla['urlcustom']}";
+                break;
+            
+            case 'anon' :
+                $ret = "{$mbla['urlcache']}/{$mbla['anonymous_email_md5']}";
+                break;
+            
+            default :
+                $ret = null;
+                break;
+        }
     } else {
-      echo "<tr>";
-      echo   "<td colspan='5'>The avatar cache is empty. <a href='{$PHP_SELF}?{$url}'>Reload cache</a></td>";
-      echo "</tr>";
+        $tmp = parse_url( $identifier );
+        $ret = "{$tmp['scheme']}://" . $tmp [ 'host' ] { 0 } . ".googlepreview.com/preview?s={$tmp['scheme']}://{$tmp['host']}";
     }
-  }
-  echo "</table>";
-
-  echo "</form>";
-
-  echo "</div>";
-  include (ABSPATH . 'wp-admin/admin-footer.php');
-  die;
+    logger( "\$ret: {$ret}" );
+    logger( "}" , - 1 );
+    return $ret;
 }
 
-function id2URL($service, $id, $md5id) {
-  global $mbla, $mbla_options;
-  if (strpos($id, '@')) {
-    switch (strtolower($service)) {
-      case 'gravatar'   : return "http://www.gravatar.com/avatar.php?gravatar_id={$md5id}&rating=X";
-                          break;
-
-      case 'mybloglog'  : return "http://pub.mybloglog.com/coiserv.php?href=mailto:{$id}";
-                          break;
-
-      case 'custom'     : return "{$mbla['urlcustom']}";
-                          break;
-
-      case 'anon'       : return "{$mbla['urlcache']}/{$mbla['anonymous_email_md5']}";
-                          break;
-
-      default           : return null; break;
+function updateNeeded( $md5_name ) {
+    logger( "updateNeeded({$md5_name}) {" , + 1 );
+    global $mbla, $mbla_options;
+    $update = false;
+    $avatar = "{$mbla['filecache']}/{$md5_name}";
+    logger( "checking avatar {$mbla['filecache']}/{$md5_name}" );
+    if ( file_exists( $avatar ) ) {
+        $cdate = date( 'Y-m-d H:i:s' , filemtime( $avatar ) );
+        logger( "avatar stamp {$cdate}" );
+        if ( date( 'Y-m-d H:i:s' , strtotime( "{$cdate} +{$mbla_options['cache_days']} days" ) ) < date( 'Y-m-d H:i:s' ) ) {
+            $update = true;
+            logger( "avatar is older than {$mbla_options['cache_days']} days so tag for update" );
+        } else {
+            $update = false;
+            logger( "avatar is younger than {$mbla_options['cache_days']} days so no update necessary" );
+        }
+        if ( 0 == filesize( $avatar ) ) {
+            $update = true;
+            logger( "avatar is invalid tag for update" );
+        }
+    } else {
+        $update = true;
+        logger( "avatar doesn't exist so tag for update" );
     }
-  } else {
-    $tmp = parse_url($id);
-    return "{$tmp['scheme']}://".$tmp['host']{0}.".googlepreview.com/preview?s={$tmp['scheme']}://{$tmp['host']}";
-  }
+    logger( "updateNeeded({$md5_name}): " . (int)$update );
+    logger( "}" , - 1 );
+    return $update;
 }
 
-function updateNeeded($id) {
-  global $mbla, $mbla_options;
-  $update = false;
-  $avatar = "{$mbla['filecache']}/{$id}";
-  if (file_exists($avatar)) {
-    $cdate = date('Y-m-d H:i:s', filemtime($avatar));
-    if (date('Y-m-d H:i:s', strtotime("{$cdate} +{$mbla_options['cache_days']} days")) < date('Y-m-d H:i:s')) {
-      $update = true;
-    } elseif (filesize($avatar) == 0) {
-      $update = true;
+function fetchAvatar( $INemail = null, $INservice = null ) {
+    logger( "fetchAvatar({$INemail}, {$INservice}) {" , + 1 );
+    global $mbla, $comment, $authordata, $mbla_options;
+    
+    $retval = array( );
+    
+    if ( $INemail ) {
+        $identifier = $INemail;
+    } elseif ( $comment->comment_author_email ) {
+        $identifier = $comment->comment_author_email;
+    } elseif ( $comment->comment_author_url ) {
+        $tmp = explode( '/' , $comment->comment_author_url );
+        $identifier = "{$tmp[0]}//{$tmp[2]}";
+    } elseif ( $authordata->user_email ) {
+        $identifier = $authordata->user_email;
     }
-  } else {
-    $update = true;
-  }
-  return $update;
+    $md5_name = md5( $identifier );
+    logger( "\$identifier: {$identifier}" );
+    logger( "\$md5_name: {$md5_name}" );
+    
+    if ( updateNeeded( $md5_name ) || $INservice ) {
+        // an update is needed        $services = ( $INservice ? array( 
+            $INservice ) : explode( ',' , $mbla_options [ 'prival' ] ) );
+        logger( "\$services: " . var_export( $services , true ) );
+        while ( $service = array_shift( $services ) ) {
+            logger( "querying {$service}:" , + 1 );
+            
+            if ( 'none' == $service ) {
+                // always bail out on the "none" service                $ret = null;
+            } else {
+                // cycle through the services                switch ( $service ) {
+                    case 'gravatar' :
+                        $remoteFileURL = identifier2URL( 'gravatar' , $identifier , $md5_name );
+                        break;
+                    case 'mybloglog' :
+                        $remoteFileURL = identifier2URL( 'mybloglog' , $identifier , $md5_name );
+                        break;
+                    case 'custom' :
+                        $remoteFileURL = identifier2URL( 'custom' , $identifier , $md5_name );
+                        break;
+                    case 'mybloglog_anon' :
+                    case 'gravatar_anon' :
+                        $remoteFileURL = identifier2URL( 'anon' , $identifier , $md5_name );
+                        $INservice = 'localanon';
+                        break;
+                    case 'none' :
+                    default :
+                        return null;
+                }
+                logger( "\$remoteFileURL: {$remoteFileURL}" );
+                $retval = downloadURL( $remoteFileURL , $md5_name , $INservice );
+                
+                if ( true == $retval [ 'anon' ] ) {
+                    logger( "anonmous avatar fetched - move on to next service" );
+                }
+                
+                if ( ! $retval [ 'anon' ] || $INservice ) {
+                    $retval [ 'md5_name' ] = $md5_name;
+                    logger( "valid avatar fetched - bailing out of loop" );
+                    logger( " " , - 1 );
+                    
+                    break;
+                }
+                logger( " " , - 1 );
+            }
+        }
+    } else {
+        // no update is needed so just return the md5_name        logger( "no update was needed, just return the avatar" );
+        $retval [ 'md5_name' ] = $md5_name;
+    }
+    logger( "\$retval: " . var_export( $retval , true ) );
+    logger( "}" , - 1 );
+    return $retval;
 }
 
+if ( ! function_exists( 'MyAvatars' ) ) {
 
-function fetchAvatar($INemail = null, $INservice = null) {
-  global $mbla, $comment, $authordata, $mbla_options;
-
-  if ($INemail) {
-    $id  = $INemail;
-  } elseif ($comment->comment_author_email) {
-    $id  = $comment->comment_author_email;
-  } elseif ($comment->comment_author_url) {
-    $tmp = explode('/', $comment->comment_author_url);
-    $id  = "{$tmp[0]}//{$tmp[2]}";
-  } elseif ($authordata->user_email) {
-    $id  = $authordata->user_email;
-  }
-  $md5id = md5($id);
-
-  if (updateNeeded($md5id) || $INservice) {
-    // an update is needed
-    $services = ($INservice ? array($INservice) : explode(',', $mbla_options['prival']));
-    while ($service = array_shift($services)) {
-      if ('none' == $service) {
-        // always bail out on the "none" service
-        return null;
-      } else {
-        // cycle through the services
-
-          switch ($service) {
-            case 'gravatar'      : $remoteFileURL = id2URL('gravatar' , $id, $md5id); break;
-            case 'mybloglog'     : $remoteFileURL = id2URL('mybloglog', $id, $md5id); break;
-            case 'custom'        : $remoteFileURL = id2URL('custom'   , $id, $md5id); break;
-            case 'mybloglog_anon':
-            case 'gravatar_anon' : $remoteFileURL = id2URL('anon'     , $id, $md5id); $INservice = 'localanon'; break;
-            case 'none'          :
-            default              : return null;
-          }
-
-          $ret = downloadURL($remoteFileURL, $md5id, $INservice);
-
-          if (!isAnon($ret) || $INservice) {
-            return array('file' => $ret,
-                         'id'   => $md5id);
-          } else {
-          }
-      }
+    /**
+     * Main function which echo or returns an avatar
+     *
+     * @param string $INemail Email of which to find an avatar from
+     * @param unknown_type $INservice Force a specific service to be used
+     * @param unknown_type $update_method Update by rules or always?
+     * @param boolean $echo if true then the avatar will be echo'ed, if false then it will be return'ed
+     * @return string String containing the avatar if $echo is false
+     */
+    function MyAvatars( $INemail = '', $INservice = '', $update_method = 'rules', $echo = true ) {
+        global $mbla, $comment, $authordata, $mbla_options;
+        logger( "MyAvatars({$INemail}, {$INservice}, {$update_method}, {$echo}) {" , + 1 );
+        
+        //  $update_method= 'always';        $retval = fetchAvatar();
+        
+        // $comment->comment_ID   === NULL         -> post        // $comment->comment_type  == 'pingback'   -> pingback        // $comment->comment_type  == ''           -> comment        if ( NULL === $retval ) {
+            $based_on = 'final_html_none';
+        } elseif ( NULL === $comment->comment_ID ) {
+            $based_on = 'final_html_post';
+        } elseif ( 'pingback' === $comment->comment_type ) {
+            $based_on = 'final_html_pingback';
+        } elseif ( '' == $comment->comment_type || 'comment' == $comment->comment_type ) {
+            $based_on = 'final_html_comment';
+            if ( true == $retval [ 'anon' ] ) {
+                $based_on .= '_anon';
+            }
+        }
+        logger( "HTML field to use: {$based_on}" );
+        logger( "final avatar to use: {$mbla['urlcache']}/{$retval['md5_name']}" );
+        logger( "result will be: " . ( $echo ? 'echoed' : 'returned' ) );
+        
+        $avatar = str_replace( array( 
+            '{URL}', 
+            '{NAME}', 
+            '{MD5}', 
+            '{TITLE}', 
+            '{AVATAR}', 
+            '{MBLID}' ) , array( 
+            $comment->comment_author_url, 
+            $comment->comment_author, 
+            md5( $comment->comment_author_email ), 
+            the_title( '' , '' , false ), 
+            "{$mbla['urlcache']}/{$retval['md5_name']}", 
+            $mbla_options [ 'mbl_id' ] ) , stripslashes( $mbla_options [ $based_on ] ) );
+        logger( "$avatar" );
+        logger( "}" , - 1 );
+        if ( '' == $INemail ) {
+            if ( $echo ) {
+                echo $avatar;
+            } else {
+                return $avatar;
+            }
+        }
     }
-  } else {
-    // no update is needed so just return the md5id
-    return array('file' => $md5id,
-                 'id'   => $md5id);
-  }
+} else {
+    echo "The function MyAvatars() is already declared, most likely in another plugin. You must find and deactivate that plugin in order to activate MBLA.";
 }
 
 /**
- * Main function which echo or returns an avatar
+ * Check if an avatar is an anonymous avatar
  *
- * @param string INemail Email of which to find an avatar from
- * @param unknown_type $INservice Force a specific service to be used
- * @param unknown_type $update_method Update by rules or always?
- * @param boolean $echo if true then the avatar will be echo'ed, if false then it will be return'ed
- * @return string String containing the avatar if $echo is false
+ * @param string $INmd5_file md5 value of an avatar file
+ * @return boolean true if the avatar is anonymous
  */
-function MyAvatars($INemail = '', $INservice = '', $update_method = 'rules', $echo = true) {
-  global $mbla, $comment, $authordata, $mbla_options;
-
-//  $update_method= 'always';
-  $md5 = fetchAvatar();
-
-
-  // $comment->comment_ID   === NULL         -> post
-  // $comment->comment_type  == 'pingback'   -> pingback
-  // $comment->comment_type  == ''           -> comment
-  if ($md5 === null) {
-    $based_on = 'final_html_none';
-  } elseif ($comment->comment_ID === NULL) {
-    $based_on = 'final_html_post';
-  } elseif ($comment->comment_type == 'pingback') {
-    $based_on = 'final_html_pingback';
-  } elseif ($comment->comment_type == '' ||
-            $comment->comment_type == 'comment') {
-    $based_on = 'final_html_comment';
-    if (isAnon($md5['file'])) {
-      $based_on .= '_anon';
-    }
-  }
-  $avatar = str_replace(array('{URL}',
-                              '{NAME}',
-                              '{MD5}',
-                              '{TITLE}',
-                              '{AVATAR}',
-                              '{MBLID}',
-                             ),
-                        array($comment->comment_author_url,
-                              $comment->comment_author,
-                              md5($comment->comment_author_email),
-                              the_title('', '', false),
-                              "{$mbla['urlcache']}/{$md5['id']}",
-                              $mbla_options['mbl_id'],
-                             ),
-                        stripslashes($mbla_options[$based_on])
-                        );
-
-  if ($INemail == '') {
-    if ($echo) {
-      echo $avatar;
-    } else {
-      return $avatar;
-    }
-  }
+function isAnon( $INmd5_file ) {
+    logger( "isAnon({$INmd5_file}) {" , + 1 );
+    global $mbla_options, $mbla;
+    $anon = ( $INmd5_file == $mbla [ 'anonymous_file_md5' ] );
+    $anon_file = in_array( $INmd5_file , (array)$mbla_options [ 'md5_anon' ] );
+    logger( "is this our custom anonymous avatar?: " . (int)$anon );
+    logger( "is this an anonymous avatar?: " . (int)$anon_file );
+    logger( "}" , - 1 );
+    return $anon_file || $anon;
 }
 
 /**
- * Check if an md5id is an anonymous avatar
+ * downloads a file (avatar) and saves it
  *
- * @param string $INmd5 md5 value of an email
- * @return boolean true if $INmd5 is an anonymous avatar
+ * @param string $URL is the URL of the file to download
+ * @param string $NEWNAME is the name the file will get when saved
+ * @param boolean $forced tells if the file should be written no matter what
+ * @return string md5 checksum of the written file
  */
-function isAnon($INmd5) {
-  global $mbla_options, $mbla;
-  $anon = (@md5_file("{$mbla['filecache']}/{$INmd5}") == $mbla['anonymous_file_md5']);
-  return in_array($INmd5, (array)$mbla_options['md5_anon']) || $anon;
-}
-
-
-function downloadURL($URL, $NEWNAME, $forced) {
-  global $mbla_options, $mbla;
-
-  $tmp = curlGet($URL);
-  $tmp_md5 = md5($tmp);
-
-  if (!isAnon($tmp_md5) || $forced) {
-    file_put("{$mbla['filecache']}/{$NEWNAME}", $tmp);
-  } else {
-  }
-  return $tmp_md5;
-}
-
-if (!function_exists('file_put')) {
-  function file_put($n, $d) {
-    $f = @fopen($n,"w");
-    if (!$f) {
-     return false;
+function downloadURL( $URL, $NEWNAME, $forced ) {
+    logger( "downloadURL({$URL}, {$NEWNAME}, {$forced}) {" , + 1 );
+    global $mbla_options, $mbla;
+    
+    $retval = array( );
+    
+    $tmp = curlGet( $URL );
+    $retval [ 'md5_file' ] = md5( $tmp );
+    $retval [ 'md5_name' ] = $NEWNAME;
+    logger( "md5() of downloaded file: {$retval['md5_file']}" );
+    
+    if ( $mbla [ 'anonymous_file_md5' ] == $retval [ 'md5_file' ] ) {
+        logger( 'this is our custom avatar - use it!' );
+        $forced = true;
     } else {
-     fwrite($f,$d);
-     fclose($f);
-     return true;
+        $retval [ 'anon' ] = isAnon( $retval [ 'md5_file' ] );
+        if ( $retval [ 'anon' ] ) {
+            logger( "avatar {$NEWNAME} is tagged as anon" );
+        }
     }
-  }
+    
+    if ( $forced ) {
+        logger( "avatar is forced to be saved" );
+    }
+    if ( ! $retval [ 'anon' ] || $forced ) {
+        $bytes_written = file_put_contents( "{$mbla['filecache']}/{$NEWNAME}" , $tmp );
+        logger( "avatar {$NEWNAME} saved in {$bytes_written} bytes" );
+    }
+    
+    logger( "}" , - 1 );
+    return $retval;
 }
 
-if(!function_exists('curlGet')) {
-  function curlGet($URL) {
-    $ch = curl_init();
-    $timeout = 3;
-    curl_setopt($ch, CURLOPT_URL, $URL);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-    $tmp = curl_exec($ch);
-    curl_close($ch);
-    return $tmp;
-  }
-}
+if ( ! function_exists( 'curlGet' ) ) {
 
-if (!function_exists('checkVersion')) {
-  /**
-   * Check version of latest official release of this plugin
-   *
-   * @return string containing HTML styled version
-   */
-  function checkVersion() {
-    $latest  = "http://".strtr(basename($_GET['page'], '.php'), '_', '-').".googlecode.com/svn/trunk/{$_GET['page']}";
-    $tmpfile = str_replace(array('<br />','&nbsp;'),
-                           array(chr(10).chr(13),' '),
-                           curlGet($latest));
-    preg_match_all('/Version: (.*)/', $tmpfile, $matches);
-    $latest_version = $matches[1][0];
-    $_tmp = file(dirname(__FILE__).'/'.$_GET['page']);
-    list($dummy, $this_version) = explode(' ', $_tmp[5]);
-    if (trim($latest_version) != trim($this_version)) {
-      return "<div style='color: red;'>You are running version {$this_version} - there is a <a href='{$latest}'>newer version {$latest_version} available</a></div>";
-    } else {
-      return "<div style='color: green;'>You are running the latest version {$this_version}</div>";
+    function curlGet( $URL ) {
+        logger( "curlGet({$URL}) {" , + 1 );
+        $ch = curl_init();
+        $timeout = 3;
+        curl_setopt( $ch , CURLOPT_URL , $URL );
+        curl_setopt( $ch , CURLOPT_RETURNTRANSFER , 1 );
+        curl_setopt( $ch , CURLOPT_CONNECTTIMEOUT , $timeout );
+        $tmp = curl_exec( $ch );
+        curl_close( $ch );
+        logger( "}" , - 1 );
+        return $tmp;
     }
-  }
 }
 ?>

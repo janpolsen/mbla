@@ -67,11 +67,25 @@ http://famfamfam.googlecode.com/svn/wiki/images/bug.png Fixed the "Avatar Fetch 
 
 === 2007-07-31 - v0.27b ===
 http://famfamfam.googlecode.com/svn/wiki/images/bug.png Fixed [http://code.google.com/p/mbla/issues/detail?id=3 issue #3]
- 
+
 === 2007-10-18 - v0.29 ===
 http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added PapyGeek's suggestion as written in [http://code.google.com/p/mbla/issues/detail?id=6 issue #6]
 
 http://famfamfam.googlecode.com/svn/wiki/images/script_code.png Fixed a few things so the code is 100% html compliant
- 
+
 === 2007-11-02 - v0.29debug_version ===
 http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added a debug feature so it's possible to get a readout with timestamps
+
+=== 2007-11-03 - v0.36 ===
+http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added the debug key to the MBLA option page. The debug feature will only be activated if that debug key is added to the URL like `?debug=xxx` og `&debug=xxx`, where `xxx` is the debug key
+
+http://famfamfam.googlecode.com/svn/wiki/images/script.png Changed the way the anonymous avatar files are fetched, since MyBlogLog has fubar'ed the way that has been handled so far
+
+http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added Gravatar ratings to the MBLA option page
+
+http://famfamfam.googlecode.com/svn/wiki/images/script_code.png Some functions has gotten a major overhaul which has resulted in lesser function calls and hopefully faster execution time
+
+http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added some minor error handling statements if any of the function names are already defined which include conflicts with other plugins
+
+http://famfamfam.googlecode.com/svn/wiki/images/script.png Changed the way log files are created. Now a log file will be created for each page that has been called with the debug key. The log files can be viewed from the MBLA Cache Content
+
