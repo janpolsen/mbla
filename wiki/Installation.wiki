@@ -11,14 +11,12 @@ There isn't any difference between installing this plugin for the first time and
   [http://kamajole.dk/cp/displayimage.php?pos=-15634 http://kamajole.dk/cp/albums/Blandet/thumb_20070810_175200_mbla_options_general.png]
   * Remember to add some HTML code on MBLA's HTML option page
   [http://kamajole.dk/cp/displayimage.php?pos=-15633 http://kamajole.dk/cp/albums/Blandet/thumb_20070810_175200_mbla_options_html.png]
-  * If you want avatars on your pages as well, then you need to add the following line to wherever you want the avatar to show up:
+  * If you want avatars on your posts/pages as well, then you need to add the following line to wherever you want the avatar to show up:
 {{{
 <?php if(function_exists('MyAvatarsNew')) MyAvatarsNew(); ?>
 }}}
 
 *If at any point something is messed up, then just click the "Reset to default values" from the Option page.*
-
-
 
 
 
