@@ -89,3 +89,7 @@ http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added some minor erro
 
 http://famfamfam.googlecode.com/svn/wiki/images/script.png Changed the way log files are created. Now a log file will be created for each page that has been called with the debug key. The log files can be viewed from the MBLA Cache Content
 
+=== 2007-11-06 - v0.38 ===
+http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added a filter hook so the plugin is one step closer to work by just activating it
+
+http://famfamfam.googlecode.com/svn/wiki/images/script.png Created default values for the HTML options which brings the plugin yet another step closer to work by just activating it
