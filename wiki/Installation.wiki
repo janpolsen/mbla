@@ -11,45 +11,12 @@ There isn't any difference between installing this plugin for the first time and
   [http://kamajole.dk/cp/displayimage.php?pos=-15634 http://kamajole.dk/cp/albums/Blandet/thumb_20070810_175200_mbla_options_general.png]
   * Remember to add some HTML code on MBLA's HTML option page
   [http://kamajole.dk/cp/displayimage.php?pos=-15633 http://kamajole.dk/cp/albums/Blandet/thumb_20070810_175200_mbla_options_html.png]
-  * Add the following line to wherever you want the avatar to show up:
+  * If you want avatars on your pages as well, then you need to add the following line to wherever you want the avatar to show up:
 {{{
-<?php if(function_exists('MyAvatars')) MyAvatars(); ?>
-}}}
-  This can look like this (using Wordpress' default theme):
-{{{
-...
-<ol class="commentlist">
-
-<?php foreach ($comments as $comment) : ?>
-
-	<li <?php echo $oddcomment; ?>id="comment-<?php comment_ID() ?>">
-<?php if(function_exists('MyAvatars')) MyAvatars(); ?>
-		<cite><?php comment_author_link() ?></cite> Says:
-		<?php if ($comment->comment_approved == '0') : ?>
-		<em>Your comment is awaiting moderation.</em>
-		<?php endif; ?>
-		<br />
-
-		<small class="commentmetadata"><a href="#comment-<?php comment_ID() ?>" title=""><?php comment_date('F jS, Y') ?> at <?php comment_time() ?></a> <?php edit_comment_link('edit','&nbsp;&nbsp;',''); ?></small>
-
-		<?php comment_text() ?>
-
-	</li>
-
-<?php
-	/* Changes every other comment to a different class */
-	$oddcomment = ( empty( $oddcomment ) ) ? 'class="alt" ' : '';
-?>
-
-<?php endforeach; /* end for each comment */ ?>
-
-</ol>
-...
+<?php if(function_exists('MyAvatarsNew')) MyAvatarsNew(); ?>
 }}}
 
 *If at any point something is messed up, then just click the "Reset to default values" from the Option page.*
-
-
 
 
 
