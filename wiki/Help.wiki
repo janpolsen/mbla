@@ -55,6 +55,13 @@ The log file is useful to find out what happens during the rendering of a page a
 
 Sample setting: {{{myleetpassword42}}}
 
+=== Wordpress hook to use ===
+Here you can indicate whether you want the plugin to automatically hook into a specific Wordpress function which are often used on comments. Sadly not all themes use the same functions to display comments, so there isn't a single correct function to hook into.
+
+The plugin has a few hard coded function names which I have stumbled upon while looking at different themes. If your theme doesn't use any of these, then you can either select "None" and add the PHP code manually into the theme's comment file (this is how it was done up until v0.38) or you can select "Other" and write the function name you want to hook into.
+
+If you need help, then feel free to write a comment here, but remember to tell which theme you use (and preferably a link to where it can be downloaded).
+
 === HTML code for ===
 This is the HTML code that is returned every time the main function is called. In other words then the HTML code you put under i.e. "Comments" is the HTML code that will be shown on every comment. There are some keywords that can be used, which will be replaced at runtime.
 
