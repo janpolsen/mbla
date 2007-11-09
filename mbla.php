@@ -3,14 +3,21 @@
 Plugin Name: MBLA
 Plugin URI: http://mbla.googlecode.com
 Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks. Remember to change options at <a href="options-general.php?page=mbla/mbla.php">Options -&gt; MBLA</a>.
-Version: 0.38
+Version: 0.39
 Author: Jan Olsen
 Author URI: http://kamajole.dk
 */
-add_action( 'admin_menu' , 'mbla_menu' );
-add_filter('get_comment_author_link', 'mbla');
-
 $mbla_options = get_option( 'mbla_options' );
+
+add_action( 'admin_menu' , 'mbla_menu' );
+if ($mbla_options['wphook']) {
+    if ('other' == $mbla_options['wphook']) {
+        add_filter($mbla_options['wphook_other'], 'mbla');
+    } else {
+        add_filter($mbla_options['wphook'], 'mbla');
+    }
+}
+
 $mbla = array(
     'services' => array(
         'mybloglog' => 'MyBlogLog',
@@ -138,6 +145,7 @@ function mbla_default_options( $action = '', $inarr = array() ) {
             'cache_days' => 3,
             'debug_key' => 'seeecret',
             'gravatar_rating' => 'X',
+            'wp-hook' => 'get_comment_text',
             'final_html_comment' => "<div style='float: left;'>
   <a href='{URL}'' title='{NAME} commenting on {TITLE}'>
     <img src='{AVATAR}' alt='' style='margin: 2px 2px 2px 0; height: 32px' />
@@ -260,8 +268,8 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td>";
-    echo "Avatar cache location<br/>";
-    echo "<em>relative to document root</em>";
+    echo "Avatar cache location (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/>";
+    echo "<i style='color: #aaa;'>relative to document root</i>";
     echo "</td>";
     echo "<td colspan='2'>";
     echo "<tt style='font-size: 10px;'>{$_SERVER['DOCUMENT_ROOT']}</tt>";
@@ -274,8 +282,8 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td valign='top' >";
-    echo "Custom avatar file<br/>";
-    echo "<em>relative to document root</em>";
+    echo "Custom avatar file (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/>";
+    echo "<i style='color: #aaa;'>relative to document root</i>";
     echo "</td>";
     echo "<td valign='top' colspan='2'>";
     echo "<tt style='font-size: 10px;'>{$_SERVER['DOCUMENT_ROOT']}</tt>";
@@ -288,7 +296,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td valign='top' style='width: 300px'>";
-    echo "Avatar Fetch Cycle:<br/><i>Use &and; and &or; to change the order of the boxes. Place the 'None' box where you want the script to stop looking for other avatars.</i>";
+    echo "Avatar Fetch Cycle (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/><i style='color: #aaa;'>Use &and; and &or; to change the order of the boxes. Place the 'None' box where you want the script to stop looking for other avatars.</i>";
     echo "</td>";
     echo "<td valign='top' >";
     $avail_services = array( );
@@ -338,7 +346,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td>";
-    echo "Check for updated avatar after <em>x</em> day(s)";
+    echo "Check for updated avatar after <em>x</em> day(s) (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)";
     echo "</td>";
     echo "<td>";
     echo "<select name='cache_days' style='width: 50px;'>";
@@ -360,7 +368,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td>";
-    echo "Gravatar rating";
+    echo "Gravatar rating (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)";
     echo "</td>";
     echo "<td>";
     echo "<select name='gravatar_rating' style='width: 50px;'>";
@@ -377,9 +385,58 @@ function switchPri(box1, box2) {
     echo "</tr>";
 
     echo "<tr>";
+    echo "<td valign='top'>";
+    echo "Wordpress hook to use (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/><i style='color: #aaa;'><a href='http://codex.wordpress.org/Plugin_API/Filter_Reference' target='_blank'>List available hooks</a></i>";
+    echo "</td>";
     echo "<td>";
-    echo "Secret debug key<br/>";
-    echo "<em>used to enable debug mode by adding <tt>?debug=xxx</tt> or <tt>&amp;debug=xxx</tt> to the URL where <tt>xxx</tt> is the secret debug key</em>";
+    echo "<div style='background-color: #ffc; border: 1px dashed gray; margin-bottom: 3px; padding: 3px;'>";
+    echo "<label for='wphook{$wphook}'>";
+    echo "<input type='radio' style='background-color: #ffc; border: 0;' name='wphook' id='wphook{$wphook}' value='' ".('' == $mbla_options['wphook'] ? "checked='checked'" : '')."/>&nbsp;";
+    echo "None - I'll add the following PHP code myself manually (<a href='http://code.google.com/p/mbla/wiki/Installation' title='MBLA Installation' target='_blank'>?</a>)<br/>";
+    echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>&lt;?php if(function_exists('MyAvatarsNew')) MyAvatarsNew(); ?&gt;</tt>";
+    echo "</label>";
+    echo "</div>";
+    $wphook++;
+
+    foreach(array('get_comment_text'        => array('Navigation' => 'http://www.gpsgazette.com/navigation-wp-theme/'),
+                  'get_comment_author_link' => array('Connection' => 'http://themes.wordpress.net/columns/2-columns/149/connections-reloaded-15/',
+                                                     'K2' => 'http://getk2.com/'),
+                  'get_comment_date' => NULL,
+                  'get_comment_time' => NULL) AS $hook => $themes) {
+        echo "<div style='background-color: #ffc; border: 1px dashed gray; margin-bottom: 3px; padding: 3px;'>";
+        echo "<label for='wphook{$wphook}'>";
+        echo "<input type='radio' style='background-color: #ffc; border: 0;' name='wphook' id='wphook{$wphook}' value='{$hook}' ".($hook == $mbla_options['wphook'] ? "checked='checked'" : '')." />&nbsp;";
+        echo "<tt>{$hook}()</tt>";
+        if (is_array($themes)) {
+            echo "<br/>";
+            echo str_repeat('&nbsp;', 6);
+            echo "Works nice with: ";
+            $_arr = array();
+            foreach ($themes AS $title => $url) {
+                $_arr[] = "<a href='{$url}' target='_blank' title='{$title}'>{$title}</a>";
+            }
+            echo implode(', ', $_arr);
+        }
+        echo "</label>";
+        echo "</div>";
+        $wphook++;
+    }
+
+    echo "<div style='background-color: #ffc; border: 1px dashed gray; margin-bottom: 3px; padding: 3px;'>";
+    echo "<label for='wphook{$wphook}'>";
+    echo "<input type='radio' style='background-color: #ffc; border: 0;' name='wphook' id='wphook{$wphook}' value='other' ".('other' == $mbla_options['wphook'] ? "checked='checked'" : '')." />&nbsp;";
+    echo "Other: </label><input type='text' name='wphook_other' value='{$mbla_options['wphook_other']}' onkeydown=\"document.getElementById('wphook{$wphook}').checked = true;\" style='width: 150px; font-family: monospace; font-size: 10px; text-align: right;' /><tt>()</tt>";
+    echo "</div>";
+    $wphook++;
+
+    echo "</td>";
+    echo "<td>&nbsp;</td>";
+    echo "</tr>";
+
+    echo "<tr>";
+    echo "<td valign='top' style='width: 300px'>";
+    echo "Secret debug key (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/>";
+    echo "<i style='color: #aaa;'>Used to enable debug mode by adding <tt>?debug=xxx</tt> or <tt>&amp;debug=xxx</tt> to the URL where <tt>xxx</tt> is the secret debug key</i>";
     echo "</td>";
     echo "<td colspan='2' valign='top'>";
     echo "<input type='text' name='debug_key' value='{$mbla_options['debug_key']}' style='width: 250px; font-family: monospace; font-size: 10px;' />";
@@ -432,6 +489,11 @@ function switchPri(box1, box2) {
     echo "<li><a href='http://mybloglog.com'>MyBlogLog avatars</a></li>";
     echo "<li><a href='http://gravatar.com'>Gravatar</a></li>";
     echo "<li><a href='http://googlepreview.com'>GooglePreview</a></li>";
+    echo "</ul>";
+    echo "<p>A special thank goes out to:</p>";
+    echo "<ul>";
+    echo "<li><a href='http://www.napolux.com/2006/12/14/myavatars-a-wordpress-plugin-for-mybloglog'>Napolux</a> for making me start on this plugin</li>";
+    echo "<li><a href='http://itsvista.com/'>Joseph Fieber</a>, <a href='http://dennys.tiger2.net/'>Dennys Hsieh</a>, <a href='http://www.onbezet.nl/'>Evert Jan</a>, <a href='http://www.papygeek.com/'>PapyGeek</a> and <a href=''>Alex Frison</a> for helping with bug reports, feedbacks, new features and for having patience while I implemented it :)</li>";
     echo "</ul>";
     echo "</fieldset>"; // Help
 
