@@ -93,3 +93,6 @@ http://famfamfam.googlecode.com/svn/wiki/images/script.png Changed the way log f
 http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added a filter hook so the plugin is one step closer to work by just activating it. Big thanks to [http://afrison.com Alex] for suggesting this.
 
 http://famfamfam.googlecode.com/svn/wiki/images/script.png Created default values for the HTML options which brings the plugin yet another step closer to work by just activating it. Big thanks to [http://afrison.com Alex] for suggesting this.
+
+=== 2007-11-10 - v0.39 ===
+http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added a selection list of Wordpress hooks to use. Alternatively it's possible to manually write a wordpress function name or to "inject" the PHP code into the theme's comment page. Sadly this is necessary because not all themes use the same function calls to build the comment page http://famfamfam.googlecode.com/svn/wiki/images/emoticon_unhappy.png
