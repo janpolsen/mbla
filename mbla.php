@@ -393,7 +393,7 @@ function switchPri(box1, box2) {
     echo "<label for='wphook{$wphook}'>";
     echo "<input type='radio' style='background-color: #ffc; border: 0;' name='wphook' id='wphook{$wphook}' value='' ".('' == $mbla_options['wphook'] ? "checked='checked'" : '')."/>&nbsp;";
     echo "None - I'll add the following PHP code myself manually (<a href='http://code.google.com/p/mbla/wiki/Installation' title='MBLA Installation' target='_blank'>?</a>)<br/>";
-    echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>&lt;?php if(function_exists('MyAvatarsNew')) MyAvatarsNew(); ?&gt;</tt>";
+    echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>&lt;?php if(function_exists('MyAvatars<b>New</b>')) MyAvatars<b>New</b>(); ?&gt;</tt>";
     echo "</label>";
     echo "</div>";
     $wphook++;
