@@ -493,7 +493,7 @@ function switchPri(box1, box2) {
     echo "<p>A special thank goes out to:</p>";
     echo "<ul>";
     echo "<li><a href='http://www.napolux.com/2006/12/14/myavatars-a-wordpress-plugin-for-mybloglog'>Napolux</a> for making me start on this plugin</li>";
-    echo "<li><a href='http://itsvista.com/'>Joseph Fieber</a>, <a href='http://dennys.tiger2.net/'>Dennys Hsieh</a>, <a href='http://www.onbezet.nl/'>Evert Jan</a>, <a href='http://www.papygeek.com/'>PapyGeek</a> and <a href=''>Alex Frison</a> for helping with bug reports, feedbacks, new features and for having patience while I implemented it :)</li>";
+    echo "<li><a href='http://itsvista.com/'>Joseph Fieber</a>, <a href='http://dennys.tiger2.net/'>Dennys Hsieh</a>, <a href='http://www.onbezet.nl/'>Evert Jan</a>, <a href='http://www.papygeek.com/'>PapyGeek</a> and <a href='http://afrison.com/'>Alex Frison</a> for helping with bug reports, feedbacks, new features and for having patience while I implemented it :)</li>";
     echo "</ul>";
     echo "</fieldset>"; // Help
 
