@@ -20,3 +20,20 @@ Yes, of course. While you don't need to add any code to the comment template, th
 Navigate to the page you wish to debug and finally add `?debug=xxx` or `&debug=xxx` where `xxx` is your secret debug key to the URL.
 
 This should load the page in debug mode and place a file called `mbla_xxx.log` (where the `xxx` is the name of the current script file you are debugging) in your MBLA cache directory.
+
+=== How do I remove the link tags on the avatar image? ===
+Just remove the link tags you see in the HTML code from something like this:
+{{{
+<div style="float: left;">
+  <a href="{URL}" title="{NAME} commenting on {TITLE}">
+    <img src="{AVATAR}" alt="" style="height: 32px" />
+  </a>
+</div>
+}}}
+
+... to something like this:
+{{{
+<div style="float: left;">
+  <img src="{AVATAR}" alt="" style="height: 32px" />
+</div>
+}}}
