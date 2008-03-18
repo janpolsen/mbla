@@ -268,7 +268,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td>";
-    echo "Avatar cache location (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/>";
+    echo "Avatar cache location (<a href='http://code.google.com/p/mbla/wiki/Help#Avatar_cache_location' title='MBLA Help' target='_blank'>?</a>)<br/>";
     echo "<i style='color: #aaa;'>relative to document root</i>";
     echo "</td>";
     echo "<td colspan='2'>";
@@ -282,7 +282,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td valign='top' >";
-    echo "Custom avatar file (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/>";
+    echo "Custom avatar file (<a href='http://code.google.com/p/mbla/wiki/Help#Custom_avatar_file' title='MBLA Help' target='_blank'>?</a>)<br/>";
     echo "<i style='color: #aaa;'>relative to document root</i>";
     echo "</td>";
     echo "<td valign='top' colspan='2'>";
@@ -296,7 +296,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td valign='top' style='width: 300px'>";
-    echo "Avatar Fetch Cycle (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/><i style='color: #aaa;'>Use &and; and &or; to change the order of the boxes. Place the 'None' box where you want the script to stop looking for other avatars.</i>";
+    echo "Avatar Fetch Cycle (<a href='http://code.google.com/p/mbla/wiki/Help#Custom_avatar_file' title='MBLA Help' target='_blank'>?</a>)<br/><i style='color: #aaa;'>Use &and; and &or; to change the order of the boxes. Place the 'None' box where you want the script to stop looking for other avatars.</i>";
     echo "</td>";
     echo "<td valign='top' >";
     $avail_services = array( );
@@ -346,7 +346,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td>";
-    echo "Check for updated avatar after <em>x</em> day(s) (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)";
+    echo "Check for updated avatar after <em>x</em> days (<a href='http://code.google.com/p/mbla/wiki/Help#Check_for_updated_avatar_after_x_days' title='MBLA Help' target='_blank'>?</a>)";
     echo "</td>";
     echo "<td>";
     echo "<select name='cache_days' style='width: 50px;'>";
@@ -368,7 +368,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td>";
-    echo "Gravatar rating (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)";
+    echo "Gravatar rating (<a href='http://code.google.com/p/mbla/wiki/Help#Gravatar_rating' title='MBLA Help' target='_blank'>?</a>)";
     echo "</td>";
     echo "<td>";
     echo "<select name='gravatar_rating' style='width: 50px;'>";
@@ -386,7 +386,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td valign='top'>";
-    echo "Wordpress hook to use (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/><i style='color: #aaa;'><a href='http://codex.wordpress.org/Plugin_API/Filter_Reference' target='_blank'>List available hooks</a></i>";
+    echo "Wordpress hook to use (<a href='http://code.google.com/p/mbla/wiki/Help#Wordpress_hook_to_use' title='MBLA Help' target='_blank'>?</a>)<br/><i style='color: #aaa;'><a href='http://codex.wordpress.org/Plugin_API/Filter_Reference' target='_blank'>List available hooks</a></i>";
     echo "</td>";
     echo "<td>";
     echo "<div style='background-color: #ffc; border: 1px dashed gray; margin-bottom: 3px; padding: 3px;'>";
@@ -435,7 +435,7 @@ function switchPri(box1, box2) {
 
     echo "<tr>";
     echo "<td valign='top' style='width: 300px'>";
-    echo "Secret debug key (<a href='http://code.google.com/p/mbla/wiki/Help' title='MBLA Help' target='_blank'>?</a>)<br/>";
+    echo "Secret debug key (<a href='http://code.google.com/p/mbla/wiki/Help#Debug_key' title='MBLA Help' target='_blank'>?</a>)<br/>";
     echo "<i style='color: #aaa;'>Used to enable debug mode by adding <tt>?debug=xxx</tt> or <tt>&amp;debug=xxx</tt> to the URL where <tt>xxx</tt> is the secret debug key</i>";
     echo "</td>";
     echo "<td colspan='2' valign='top'>";
@@ -454,7 +454,7 @@ function switchPri(box1, box2) {
     echo "<fieldset style='display: none;'>";
     echo "<table cellspacing='0' cellpadding='5' border='0' width='100%'>";
     echo "<tr>";
-    echo "<td valign='bottom'>HTML code for </td>";
+    echo "<td valign='bottom'>HTML code for (<a href='http://code.google.com/p/mbla/wiki/Help#HTML_code_for' title='MBLA Help' target='_blank'>?</a>)</td>";
     echo "<td><i>See available keywords at the bottom this page</i></td>";
     echo "</tr>";
 
@@ -465,7 +465,7 @@ function switchPri(box1, box2) {
         'pingback' => 'pingbacks',
         'none' => 'No avatar available' ) as $typid => $typtitle ) {
         echo "<tr>";
-        echo "<td valign='top' style='white-space: nowrap;'><b>" . ucfirst( $typtitle ) . "</b></td>";
+        echo "<td valign='top' style='white-space: nowrap;'><b>" . ucfirst( $typtitle ) . "</b> (<a href='http://code.google.com/p/mbla/wiki/Help#".str_replace(array('(',')'), array('',''), $typtitle)."' title='MBLA Help' target='_blank'>?</a>)</td>";
         echo "<td width='100%'>";
         echo "<textarea name='final_html_{$typid}' rows='5' cols='80' style='font-family: monospace; font-size: 10px;'>";
         echo htmlentities( stripslashes( $mbla_options [ "final_html_{$typid}" ] ) );
@@ -480,7 +480,6 @@ function switchPri(box1, box2) {
 
     echo "</table>";
     echo "</fieldset>"; // HTML
-
 
     echo "<fieldset style='display: none;'>";
     echo "<p>This <a href='http://wordpress.org'>Wordpress</a> plugin is hosted at <a href='http://code.google.com/p/mbla/'>Google Code</a>, which means that everything about <a href='http://code.google.com/p/mbla/downloads/list'>download</a>, <a href='http://code.google.com/p/mbla/wiki/Installation'>installation</a>, <a href='http://code.google.com/p/mbla/issues/list'>issues</a> and <a href='http://code.google.com/p/mbla/wiki/Help'>help</a> can be found there.</p>";
@@ -924,7 +923,6 @@ function downloadURL( $URL, $NEWNAME, $forced ) {
 }
 
 if ( ! function_exists( 'curlGet' ) ) {
-
     function curlGet( $URL ) {
         logger( "curlGet({$URL}) {" , + 1 );
         $ch = curl_init();
