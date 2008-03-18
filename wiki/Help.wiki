@@ -104,7 +104,7 @@ This is the HTML code that is used for posts.
 ==== Comments ====
 This is the HTML code that is used for comments.
 
-==== Comments (anonymous) ====
+==== Comments anonymous ====
 This is the HTML code that is used for comments AND if the commenter is anonymous (meaning that an avatar can't be found).
 
 ==== Pingbacks ====
