@@ -1,5 +1,22 @@
 #summary Help with configuring this plugin
 #labels Featured,Phase-Deploy
+
+== Contents ==
+  * [Help#Avatar_cache_location Avatar cache location]
+  * [Help#Custom_avatar_file Custom avatar file]
+  * [Help#Avatar_Fetch_Cycle Avatar Fetch Cycle]
+  * [Help#Check_for_updated_avatar_after_x_days Check for updated avatar after x day(s)]
+  * [Help#Gravatar_rating Gravatar rating]
+  * [Help#Debug_key Debug key]
+  * [Help#Wordpress_hook_to_use Wordpress hook to use]
+  * [Help#HTML_code_for HTML code for]
+    * [Help#Posts Posts]
+    * [Help#Comments Comments]
+    * [Help#Comments_anonymous Comments (anonymous)]
+    * [Help#Pingbacks Pingbacks]
+    * [Help#No_avatar_available No avatar available]
+            
+            
 === Avatar cache location ===
 
 This setting is essential in order to make this plugin work. The setting should point to a writable folder anywhere under the document root.
