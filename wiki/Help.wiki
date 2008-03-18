@@ -5,7 +5,7 @@
   * [Help#Avatar_cache_location Avatar cache location]
   * [Help#Custom_avatar_file Custom avatar file]
   * [Help#Avatar_Fetch_Cycle Avatar Fetch Cycle]
-  * [Help#Check_for_updated_avatar_after_x_days Check for updated avatar after x day(s)]
+  * [Help#Check_for_updated_avatar_after_x_days Check for updated avatar after x days]
   * [Help#Gravatar_rating Gravatar rating]
   * [Help#Debug_key Debug key]
   * [Help#Wordpress_hook_to_use Wordpress hook to use]
@@ -38,7 +38,7 @@ The various "Anonymous Avatar" boxes always return an avatar, that being either 
 
 The fetch cycle will in other words never pass the "None" box and the "Anonymous Avatar" boxes.
 
-=== Check for updated avatar after x day(s) ===
+=== Check for updated avatar after x days ===
 When is the fetched avatar considered outdated? Theoretically then it would be best to not use this setting at all, which would mean that a new avatar is fetched every time a person loads a web page using this plugin. Unfortunately this means much longer load times for each page and it's considered bad behavior to do such a thing against those services that hosts the avatars in the first place.
 
 Personally I have the setting set to 3 days.
