@@ -459,13 +459,13 @@ function switchPri(box1, box2) {
     echo "</tr>";
 
     foreach ( array(
-        'post' => 'posts',
-        'comment' => 'comments',
-        'comment_anon' => 'comments (anonymous)',
-        'pingback' => 'pingbacks',
+        'post' => 'Posts',
+        'comment' => 'Comments',
+        'comment_anon' => 'Comments (anonymous)',
+        'pingback' => 'Pingbacks',
         'none' => 'No avatar available' ) as $typid => $typtitle ) {
         echo "<tr>";
-        echo "<td valign='top' style='white-space: nowrap;'><b>" . ucfirst( $typtitle ) . "</b> (<a href='http://code.google.com/p/mbla/wiki/Help#".str_replace(array('(',')'), array('',''), $typtitle)."' title='MBLA Help' target='_blank'>?</a>)</td>";
+        echo "<td valign='top' style='white-space: nowrap;'><b>" . ucfirst( $typtitle ) . "</b> (<a href='http://code.google.com/p/mbla/wiki/Help#".str_replace(array('(',')',' '), array('','','_'), $typtitle)."' title='MBLA Help' target='_blank'>?</a>)</td>";
         echo "<td width='100%'>";
         echo "<textarea name='final_html_{$typid}' rows='5' cols='80' style='font-family: monospace; font-size: 10px;'>";
         echo htmlentities( stripslashes( $mbla_options [ "final_html_{$typid}" ] ) );
