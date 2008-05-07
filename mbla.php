@@ -3,7 +3,7 @@
 Plugin Name: MBLA
 Plugin URI: http://mbla.googlecode.com
 Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks. Remember to change options at <a href="options-general.php?page=mbla/mbla.php">Options -&gt; MBLA</a>.
-Version: 0.39
+Version: 0.40
 Author: Jan Olsen
 Author URI: http://kamajole.dk
 */
@@ -26,7 +26,7 @@ $mbla = array(
     'filecache' => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']}",
     'filecustom' => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['custom']}",
     'urlcustom' => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['custom']}",
-    'anonymous_email' => '0x29@xxx.xxx' );
+    'anonymous_email' => '0x40@xxx.xxx' );
 $mbla [ 'anonymous_file_md5' ] = @md5_file( $mbla [ 'filecustom' ] );
 $mbla [ 'anonymous_email_md5' ] = md5( $mbla [ 'anonymous_email' ] );
 
@@ -651,7 +651,8 @@ function identifier2URL( $service, $identifier, $md5_name ) {
     if ( strpos( $identifier , '@' ) ) {
         switch ( strtolower( $service ) ) {
             case 'gravatar' :
-                $ret = "http://www.gravatar.com/avatar.php?gravatar_id={$md5_name}&rating={$mbla['gravatar_rating']}";
+//                $ret = "http://www.gravatar.com/avatar.php?gravatar_id={$md5_name}&rating={$mbla['gravatar_rating']}";
+                $ret = "http://www.gravatar.com/avatar/{$md5_name}?rating={$mbla_options['gravatar_rating']}";
                 break;
 
             case 'mybloglog' :
