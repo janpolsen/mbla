@@ -102,4 +102,5 @@ http://famfamfam.googlecode.com/svn/wiki/images/bug.png Fixed [http://code.googl
 
 === 2008-05-19 - v0.42 ===
 http://famfamfam.googlecode.com/svn/wiki/images/plugin.png Added an option to use Wavatars, MonsterIDs and Identicons through [http://gravatar.com Gravatar] as described [http://blog.gravatar.com/2008/04/22/identicons-monsterids-and-wavatars-oh-my here]
+
 http://famfamfam.googlecode.com/svn/wiki/images/bug.png Fixed Some issues with deleting anonymous avatars.
