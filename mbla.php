@@ -3,7 +3,7 @@
 Plugin Name: MBLA
 Plugin URI: http://mbla.googlecode.com
 Description: Use avatars from services like Gravatar and MyBlogLog in your posts, comments and pingbacks. Remember to change options at <a href="options-general.php?page=mbla/mbla.php">Options -&gt; MBLA</a>.
-Version: 0.40
+Version: 0.42
 Author: Jan Olsen
 Author URI: http://kamajole.dk
 */
@@ -26,7 +26,7 @@ $mbla = array(
     'filecache' => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['cache_location']}",
     'filecustom' => "{$_SERVER['DOCUMENT_ROOT']}{$mbla_options['custom']}",
     'urlcustom' => "http://{$_SERVER['HTTP_HOST']}{$mbla_options['custom']}",
-    'anonymous_email' => '0x40@xxx.xxx' );
+    'anonymous_email' => '0x42@xxx.xxx' );
 $mbla [ 'anonymous_file_md5' ] = @md5_file( $mbla [ 'filecustom' ] );
 $mbla [ 'anonymous_email_md5' ] = md5( $mbla [ 'anonymous_email' ] );
 
@@ -146,6 +146,7 @@ function mbla_default_options( $action = '', $inarr = array() ) {
             'debug_key' => 'seeecret',
             'gravatar_rating' => 'X',
             'wp-hook' => 'get_comment_text',
+            'gravatar_default' => 'wavatar',
             'final_html_comment' => "<div style='float: left;'>
   <a href='{URL}'' title='{NAME} commenting on {TITLE}'>
     <img src='{AVATAR}' alt='' style='margin: 2px 2px 2px 0; height: 32px' />
@@ -177,7 +178,7 @@ function mbla_default_options( $action = '', $inarr = array() ) {
             foreach ( array_reverse( explode( ',' , $mbla_options [ 'prival' ] ) ) as $tabid ) {
                 $service = str_replace( '_anon' , '' , $tabid );
                 if ( strpos( $tabid , '_anon' ) ) {
-                    $md5 = fetchAvatar( $mbla [ 'anonymous_email' ] , $service );
+                    $md5 = fetchAvatar( $mbla [ 'anonymous_email' ] , $service, false );
                     $mbla_options [ 'md5_anon' ] [ str_replace( '_anon' , '' , $tabid ) ] = $md5 [ 'md5_file' ];
                 }
             }
@@ -319,6 +320,17 @@ function switchPri(box1, box2) {
             echo "<td id='pri{$tabcnt}' style='border: 1px solid #cccc99; background-color: #ffffcc; white-space: nowrap; text-align: center;'>";
             echo "&nbsp;";
             echo "{$avail_services[$tabid]}&nbsp;";
+            if ($avail_services[$tabid] == 'Gravatar') {
+                echo "(defaults to <select name='gravatar_default' style='vertical-align: middle;'>";
+                foreach (array('none'      => 'None, continue with the Fetch Cycle',
+                               'wavatar'   => 'Wavatar',
+                               'monsterid' => 'MonsterID',
+                               'identicon' => 'Identicon') AS $gkey => $gval) {
+                    echo   "<option value='{$gkey}' " . ( $gkey == $mbla_options [ 'gravatar_default' ] ? "selected='selected'" : '' ) . ">{$gval}</option>";
+
+                }
+                echo "</select> if no Gravatar is found)";
+            }
             echo "<input type='hidden' id='prival{$tabcnt}' value='{$tabid}' />";
             echo "</td>";
             if ( $first ) {
@@ -550,12 +562,12 @@ function mbla_show_cache_content() {
 
                 case 'anon' :
                     foreach ( glob( $mbla [ 'filecache' ] . "/*" ) as $filename ) {
-                        foreach ( $mbla [ 'services' ] as $tabid => $tabtitle ) {
-
-                            if ( file_exists( $filename ) && in_array( md5_file( $filename ) , $mbla_options [ 'md5_anon' ] ) ) {
-                                unlink( $filename );
+//                        foreach ( $mbla [ 'services' ] as $tabid => $tabtitle ) {
+                            $tmp = array_merge($mbla_options['md5_anon'], array($mbla['anonymous_file_md5']));
+                            if ( file_exists( $filename ) && in_array( md5_file( $filename ) , $tmp ) ) {
+                                @unlink( $filename );
                             }
-                        }
+//                        }
                         unset( $url [ 'delete' ] );
                     }
                     break;
@@ -587,34 +599,33 @@ function mbla_show_cache_content() {
             $files = array( );
             foreach ( $cache as $fullfilename ) {
                 $fsize = filesize( $fullfilename );
-                if ( $fsize <= 256 ) {
-                    unlink( $fullfilename );
-                } else {
-                    $basefilename = basename( $fullfilename );
-                    echo "<tr>";
-                    echo "<td style='text-align: left;'>";
-                    echo "<tt>";
-                    if ( 'log' == substr( $basefilename , - 3 ) ) {
-                        echo "<a href='{$mbla['urlcache']}/{$basefilename}'>{$basefilename}</a>";
-                    } else {
-                        echo $basefilename;
-                    }
-                    echo "</tt>";
-                    echo "</td>";
-                    echo "<td style='background-color: #eee; text-align: right;'>{$fsize}</td>";
-                    echo "<td style='background-color: #eee; text-align: center;'>";
-                    if ( 'log' == substr( $basefilename , - 3 ) ) {
-                        echo "<a href='{$mbla['urlcache']}/{$basefilename}'>log file</a>";
-                    } else {
-                        echo "<img class='{$mbla_options['regular_class']}' style='{$mbla_options['regular_style']}; height: 32px; width: 32px;' src='{$mbla['urlcache']}/{$basefilename}' alt='{$basefilename}' />";
-                    }
-                    echo "</td>";
-                    echo "<td style='background-color: #eee; text-align: center; white-space: nowrap;'>" . date( 'Y-m-d H:i:s' , filemtime( $fullfilename ) ) . "</td>";
-                    echo "<td style='background-color: #eee; text-align: center;'><a href='{$PHP_SELF}?{$url}&amp;delete={$basefilename}'>Delete</a></td>";
-                    echo "</tr>";
-                    $counter++;
-                    $size += $fsize;
+                if ( $fsize < 256) {
+                    @unlink( $fullfilename );
                 }
+                $basefilename = basename( $fullfilename );
+                echo "<tr>";
+                echo "<td style='text-align: left;'>";
+                echo "<tt>";
+                if ( 'log' == substr( $basefilename , - 3 ) ) {
+                    echo "<a href='{$mbla['urlcache']}/{$basefilename}'>{$basefilename}</a>";
+                } else {
+                    echo $basefilename;
+                }
+                echo "</tt>";
+                echo "</td>";
+                echo "<td style='background-color: #eee; text-align: right;'>{$fsize}</td>";
+                echo "<td style='background-color: #eee; text-align: center;'>";
+                if ( 'log' == substr( $basefilename , - 3 ) ) {
+                    echo "<a href='{$mbla['urlcache']}/{$basefilename}'>log file</a>";
+                } else {
+                    echo "<img class='{$mbla_options['regular_class']}' style='{$mbla_options['regular_style']}; height: 32px; width: 32px;' src='{$mbla['urlcache']}/{$basefilename}' alt='{$basefilename}' />";
+                }
+                echo "</td>";
+                echo "<td style='background-color: #eee; text-align: center; white-space: nowrap;'>" . date( 'Y-m-d H:i:s' , filemtime( $fullfilename ) ) . "</td>";
+                echo "<td style='background-color: #eee; text-align: center;'><a href='{$PHP_SELF}?{$url}&amp;delete={$basefilename}'>Delete</a></td>";
+                echo "</tr>";
+                $counter++;
+                $size += $fsize;
             }
             echo "<tr>";
             echo "<th style='text-align: left;'>Total cache size</th>";
@@ -645,14 +656,18 @@ function mbla_show_cache_content() {
     die();
 }
 
-function identifier2URL( $service, $identifier, $md5_name ) {
+function identifier2URL( $service, $identifier, $md5_name, $use_gravatar_default = true ) {
     logger( "identifier2URL({$service}, {$identifier}, {$md5_name}) {" , + 1 );
     global $mbla, $mbla_options;
     if ( strpos( $identifier , '@' ) ) {
         switch ( strtolower( $service ) ) {
             case 'gravatar' :
-//                $ret = "http://www.gravatar.com/avatar.php?gravatar_id={$md5_name}&rating={$mbla['gravatar_rating']}";
-                $ret = "http://www.gravatar.com/avatar/{$md5_name}?rating={$mbla_options['gravatar_rating']}";
+                if ($use_gravatar_default) {
+                    $gravatar_default = ($mbla_options['gravatar_default'] != 'none' ? "&default={$mbla_options['gravatar_default']}" : '');
+                } else {
+                    $gravatar_default = '';
+                }
+                $ret = "http://www.gravatar.com/avatar/{$md5_name}?rating={$mbla_options['gravatar_rating']}{$gravatar_default}";
                 break;
 
             case 'mybloglog' :
@@ -709,7 +724,14 @@ function updateNeeded( $md5_name ) {
     return $update;
 }
 
-function fetchAvatar( $INemail = null, $INservice = null ) {
+/**
+ * This function fetches the avatar
+ *
+ * @param string $INemail the email address for which the avatar should be fetched
+ * @param string $INservice the service to use for the fetch
+ * @param boolean $use_gravatar_default this boolean determins if the "&default=xxx" should be added to the gravatar URL. This should always be set to false when fetching anon avatars
+ */
+function fetchAvatar( $INemail = null, $INservice = null, $use_gravatar_default = true ) {
     logger( "fetchAvatar({$INemail}, {$INservice}) {" , + 1 );
     global $mbla, $comment, $authordata, $mbla_options;
 
@@ -744,7 +766,7 @@ function fetchAvatar( $INemail = null, $INservice = null ) {
                 // cycle through the services
                 switch ( $service ) {
                     case 'gravatar' :
-                        $remoteFileURL = identifier2URL( 'gravatar' , $identifier , $md5_name );
+                        $remoteFileURL = identifier2URL( 'gravatar' , $identifier , $md5_name, $use_gravatar_default );
                         break;
                     case 'mybloglog' :
                         $remoteFileURL = identifier2URL( 'mybloglog' , $identifier , $md5_name );
@@ -754,7 +776,7 @@ function fetchAvatar( $INemail = null, $INservice = null ) {
                         break;
                     case 'mybloglog_anon' :
                     case 'gravatar_anon' :
-                        $remoteFileURL = identifier2URL( 'anon' , $identifier , $md5_name );
+                        $remoteFileURL = identifier2URL( 'anon' , $identifier , $md5_name, false );
                         $INservice = 'localanon';
                         break;
                     case 'none' :
