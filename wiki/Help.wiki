@@ -38,6 +38,8 @@ The various "Anonymous Avatar" boxes always return an avatar, that being either 
 
 The fetch cycle will in other words never pass the "None" box and the "Anonymous Avatar" boxes.
 
+As of version 0.42 it is possible to choose a default "fall back" avatar for [http://gravatar.com Gravatar]. If this is anything but "None", then the cycle will stop here and not go to the next box.
+
 === Check for updated avatar after x days ===
 When is the fetched avatar considered outdated? Theoretically then it would be best to not use this setting at all, which would mean that a new avatar is fetched every time a person loads a web page using this plugin. Unfortunately this means much longer load times for each page and it's considered bad behavior to do such a thing against those services that hosts the avatars in the first place.
 
